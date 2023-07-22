@@ -1,3 +1,4 @@
+import { WORKOUTS_URL } from '../constants';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useWorkoutsContext } from '../hooks/useWorkoutsContext';
 // date-fns library
@@ -12,7 +13,7 @@ const WorkoutDetails = ({ workout }) => {
       return;
     }
 
-    const response = await fetch(`http://localhost:3000/api/workouts/${workout._id}`, {
+    const response = await fetch(`${WORKOUTS_URL}${workout._id}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${user.token}`
