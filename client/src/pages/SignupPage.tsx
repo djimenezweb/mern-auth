@@ -19,17 +19,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { API_URL } from '@/env';
 
 const formSchema = z.object({
   username: z
     .string()
     .min(1, { message: 'Username is required' })
-    .min(3, { message: 'Must be 3 or more characters long' })
-    .max(30, { message: 'Must be 30 or fewer characters long' }),
-  email: z
-    .string()
-    .email({ message: 'Invalid email address' })
-    .min(1, { message: 'Email is required' })
     .min(3, { message: 'Must be 3 or more characters long' })
     .max(30, { message: 'Must be 30 or fewer characters long' }),
   password: z
@@ -39,20 +34,32 @@ const formSchema = z.object({
     .max(30, { message: 'Must be 30 or fewer characters long' }),
 });
 
+async function onSubmit(values: z.infer<typeof formSchema>) {
+  try {
+    const response = await fetch(`${API_URL}/api/auth/signup`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(values),
+    });
+    const json = await response.json();
+    console.log(json);
+  } catch (error) {
+    console.error('SignupPage.tsx onSubmit error', error);
+  }
+}
+
 export default function SignupPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: '',
-      email: '',
       password: '',
     },
   });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('submitted');
-    console.log(values);
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -60,7 +67,7 @@ export default function SignupPage() {
         <CardHeader>
           <CardTitle>Sign up</CardTitle>
           <CardDescription>
-            Enter your username, email and password below to create your account
+            Enter your username and password below to create your account
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -74,19 +81,6 @@ export default function SignupPage() {
                     <FormLabel>Username</FormLabel>
                     <FormControl>
                       <Input placeholder="Username" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
