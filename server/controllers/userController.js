@@ -1,8 +1,8 @@
 import { User } from '../models/User.js';
 import { Session } from '../models/Session.js';
 import { hashPassword, comparePasswords } from '../utils/bcrypt.js';
-import { nanoid } from 'nanoid';
 import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
+import { cookiesOptions } from '../config/cookiesOptions.js';
 
 async function signup(req, res) {
   // Get username and password from Request
@@ -31,7 +31,6 @@ async function signup(req, res) {
 
     // Create new session and save it to database
     const session = await Session.create({
-      sessionToken: nanoid(),
       userId,
       valid: true,
       userAgent: req.headers['user-agent'],
@@ -39,14 +38,15 @@ async function signup(req, res) {
       updatedAt: new Date(),
       createdAt: new Date(),
     });
+    const sessionId = session._id.toString();
 
     // Generate Access and Refresh Tokens
-    const accessToken = generateAccessToken(userId, session.sessionToken);
-    const refreshToken = generateRefreshToken(session.sessionToken);
+    const accessToken = generateAccessToken(userId, sessionId);
+    const refreshToken = generateRefreshToken(sessionId);
 
     // Send Cookies
-    res.cookie('accessToken', accessToken, { httpOnly: true });
-    res.cookie('refreshToken', refreshToken, { httpOnly: true });
+    res.cookie('accessToken', accessToken, cookiesOptions);
+    res.cookie('refreshToken', refreshToken, cookiesOptions);
 
     // Send Response
     return res.status(201).json({ message: 'User created' });

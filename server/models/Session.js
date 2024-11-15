@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 const sessionSchema = new mongoose.Schema({
-  sessionToken: { type: String },
   userId: { type: String },
   valid: { type: Boolean },
   userAgent: { type: String },
