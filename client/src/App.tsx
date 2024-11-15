@@ -1,49 +1,29 @@
-import {
-  Routes,
-  Route,
-  // Link,
-  // useNavigate,
-  // useLocation,
-  // Navigate,
-  // Outlet,
-} from 'react-router-dom';
-import {
-  Layout,
-  PublicPage,
-  LoginPage,
-  ProtectedPage,
-  AdminPage,
-  SignupPage,
-} from './pages';
-import RequireAuth from './router/RequireAuth';
+import RequireAdmin from './auth/RequireAdmin';
+import RequireAuth from './auth/RequireAuth';
+import { Auth, User, Events } from './blocks';
+import AuthProvider from './providers/AuthProvider';
+import EventProvider from './providers/EventProvider';
 
 function App() {
   return (
-    <>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<PublicPage />} />
-          <Route
-            path="/protected"
-            element={
-              <RequireAuth>
-                <ProtectedPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/admin"
-            element={
-              <RequireAuth>
-                <AdminPage />
-              </RequireAuth>
-            }
-          />
-        </Route>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-      </Routes>
-    </>
+    <AuthProvider>
+      <EventProvider>
+        <main className="mx-auto grid grid-cols-3 grid-rows-2 max-w-7xl gap-2">
+          <Events />
+          <RequireAuth>
+            <User />
+          </RequireAuth>
+          <Auth />
+          <div className="col-span-3 border border-black rounded-2xl overflow-hidden">
+            <RequireAuth>
+              <RequireAdmin>
+                <p>admin dashboard</p>
+              </RequireAdmin>
+            </RequireAuth>
+          </div>
+        </main>
+      </EventProvider>
+    </AuthProvider>
   );
 }
 
