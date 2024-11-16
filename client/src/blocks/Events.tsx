@@ -32,7 +32,7 @@ export default function Events() {
               events.length > 0 &&
               events.map((e, i) => (
                 <TableRow key={`${e.message}-${i}`}>
-                  <TableCell>{Date.now().toLocaleString()}</TableCell>
+                  <TableCell>{e.time}</TableCell>
                   <TableCell>{e.message}</TableCell>
                 </TableRow>
               ))}

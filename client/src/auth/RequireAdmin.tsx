@@ -2,11 +2,11 @@ import useAuth from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 
 const RequireAdmin = ({ children }: { children: JSX.Element }) => {
-  const user = useAuth();
+  const { user } = useAuth();
 
   if (!user) return null;
 
-  if (!user.role.includes('admin'))
+  if (!user.roles.includes('admin'))
     return (
       <Card>
         <CardContent>

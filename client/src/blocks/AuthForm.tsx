@@ -20,6 +20,9 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { API_URL } from '@/env';
+import useAuth from '@/hooks/useAuth';
+import { User } from '@/types';
+import useEvent from '@/hooks/useEvents';
 
 const formSchema = z.object({
   username: z
@@ -34,25 +37,10 @@ const formSchema = z.object({
     .max(30, { message: 'Must be 30 or fewer characters long' }),
 });
 
-async function onSubmit(values: z.infer<typeof formSchema>) {
-  try {
-    const response = await fetch(`${API_URL}/api/auth/signup`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify(values),
-    });
-    const json = await response.json();
-    console.log(json);
-  } catch (error) {
-    console.error('SignupPage.tsx onSubmit error', error);
-  }
-}
+export default function AuthForm({ type }: { type: 'login' | 'signup' }) {
+  const { setUser } = useAuth();
+  const { addEvent } = useEvent();
 
-export default function SignupForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -61,12 +49,40 @@ export default function SignupForm() {
     },
   });
 
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/${type}`, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        setUser(null);
+        console.log('handle error');
+      }
+
+      const { data, message }: { data: User; message: string } =
+        await response.json();
+      setUser(data);
+      addEvent({ time: new Date().toLocaleDateString(), message });
+    } catch (error) {
+      console.error(`AuthForm ${type} onSubmit error`, error);
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sign up</CardTitle>
+        <CardTitle>{type === 'login' ? 'Login' : 'Signup'}</CardTitle>
         <CardDescription>
-          Enter your username and password below to create your account
+          {type === 'login'
+            ? 'Enter your username and password below to login'
+            : 'Enter your username and password below to create an account'}
         </CardDescription>
       </CardHeader>
       <Form {...form}>
@@ -101,7 +117,7 @@ export default function SignupForm() {
           </CardContent>
           <CardFooter>
             <Button variant="default" className="w-full" type="submit">
-              Sign up
+              {type === 'login' ? 'Login' : 'Signup'}
             </Button>
           </CardFooter>
         </form>

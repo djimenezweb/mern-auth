@@ -1,6 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import LoginForm from './LoginForm';
-import SignupForm from './SignupForm';
+import AuthForm from './AuthForm';
 
 export default function Auth() {
   return (
@@ -10,10 +9,10 @@ export default function Auth() {
         <TabsTrigger value="signup">Signup</TabsTrigger>
       </TabsList>
       <TabsContent value="login">
-        <LoginForm />
+        <AuthForm type="login" />
       </TabsContent>
       <TabsContent value="signup">
-        <SignupForm />
+        <AuthForm type="signup" />
       </TabsContent>
     </Tabs>
   );

@@ -3,9 +3,10 @@ type Role = 'user' | 'admin';
 export type User = {
   userId: string;
   username: string;
-  role: Role[];
+  roles: Role[];
 };
 
 export type Event = {
+  time: string;
   message: string;
 };

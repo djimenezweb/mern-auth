@@ -2,7 +2,7 @@ import useAuth from '@/hooks/useAuth';
 import { Card, CardContent } from '@/components/ui/card';
 
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
-  const user = useAuth();
+  const { user } = useAuth();
 
   if (!user)
     return (

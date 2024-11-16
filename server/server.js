@@ -13,13 +13,17 @@ if (typeof process.env.PORT === 'undefined') {
 
 const port = process.env.PORT;
 
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(cookieParser());
 app.use('/api/auth', userRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Server root');
+  console.log(req.headers.cookie);
+  console.log(req.cookies);
+
+  res.status(200).json(req.headers);
+  // res.send('Server root');
 });
 
 async function startServer() {

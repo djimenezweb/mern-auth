@@ -1,7 +1,11 @@
 import { User } from '../models/User.js';
-import { Session } from '../models/Session.js';
-import { hashPassword, comparePasswords } from '../utils/bcrypt.js';
-import { generateAccessToken, generateRefreshToken } from '../utils/tokens.js';
+import {
+  hashPassword,
+  comparePasswords,
+  generateAccessToken,
+  generateRefreshToken,
+  createSession,
+} from '../utils/index.js';
 import { cookiesOptions } from '../config/cookiesOptions.js';
 
 async function signup(req, res) {
@@ -29,27 +33,26 @@ async function signup(req, res) {
     const user = await User.create({ username, password: hashedPassword });
     const userId = user._id.toString();
 
-    // Create new session and save it to database
-    const session = await Session.create({
-      userId,
-      valid: true,
-      userAgent: req.headers['user-agent'],
-      ip: req.ip,
-      updatedAt: new Date(),
-      createdAt: new Date(),
-    });
-    const sessionId = session._id.toString();
+    // Create new session
+    const sessionId = createSession(userId, req.headers['user-agent'], req.ip);
 
     // Generate Access and Refresh Tokens
     const accessToken = generateAccessToken(userId, sessionId);
     const refreshToken = generateRefreshToken(sessionId);
 
-    // Send Cookies
+    // Set Tokens in Cookies
     res.cookie('accessToken', accessToken, cookiesOptions);
     res.cookie('refreshToken', refreshToken, cookiesOptions);
 
     // Send Response
-    return res.status(201).json({ message: 'User created' });
+    return res.status(201).json({
+      data: {
+        userId: userId,
+        username: user.username,
+        roles: user.roles,
+      },
+      message: `User ${user.username} created and logged in successfully`,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'An error ocurred' });
@@ -63,7 +66,7 @@ async function login(req, res) {
   // Send error if empty fields
   if (!username || !password) {
     return res
-      .status(409)
+      .status(400)
       .json({ message: 'Username and password are required' });
   }
 
@@ -73,17 +76,34 @@ async function login(req, res) {
     if (!user) {
       return res.status(409).json({ message: 'User does not exist' });
     }
+    const userId = user._id.toString();
 
     // Compare password from database against password from login form
     const match = await comparePasswords(password, user.password);
     if (!match) {
-      return res.status(401).json({ message: 'Incorrect password' });
+      return res.status(400).json({ message: 'Incorrect password' });
     }
 
+    // Create new session
+    const sessionId = createSession(userId, req.headers['user-agent'], req.ip);
+
+    // Generate Access and Refresh Tokens
+    const accessToken = generateAccessToken(userId, sessionId);
+    const refreshToken = generateRefreshToken(sessionId);
+
+    // Set Tokens in Cookies
+    res.cookie('accessToken', accessToken, cookiesOptions);
+    res.cookie('refreshToken', refreshToken, cookiesOptions);
+
     // Send Response
-    return res
-      .status(202)
-      .json({ message: `User ${user.username} logged in successfully` });
+    return res.status(200).json({
+      data: {
+        userId: userId,
+        username: user.username,
+        roles: user.roles,
+      },
+      message: `User ${user.username} logged in successfully`,
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'An error ocurred' });

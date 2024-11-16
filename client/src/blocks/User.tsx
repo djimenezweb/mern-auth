@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 export default function User() {
-  const user = useAuth();
+  const { user } = useAuth();
   if (!user) return null;
 
   return (

@@ -7,10 +7,7 @@ export default function EventProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [events, setEvents] = useState<Event[]>([
-    { message: 'Ready' },
-    { message: 'Login to continue' },
-  ]);
+  const [events, setEvents] = useState<Event[]>([]);
 
   function addEvent(newEvent: Event) {
     setEvents(prev => [...prev, newEvent]);
