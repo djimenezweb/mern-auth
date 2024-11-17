@@ -7,6 +7,7 @@ import {
   createSession,
 } from '../utils/index.js';
 import { cookiesOptions } from '../config/cookiesOptions.js';
+import { refreshTokenExpiration } from '../config/expireOptions.js';
 
 async function signup(req, res) {
   // Get username and password from Request
@@ -34,15 +35,22 @@ async function signup(req, res) {
     const userId = user._id.toString();
 
     // Create new session
-    const sessionId = createSession(userId, req.headers['user-agent'], req.ip);
+    const sessionId = await createSession(
+      userId,
+      req.headers['user-agent'],
+      req.ip
+    );
 
     // Generate Access and Refresh Tokens
-    const accessToken = generateAccessToken(userId, sessionId);
+    const accessToken = generateAccessToken(user, sessionId);
     const refreshToken = generateRefreshToken(sessionId);
 
     // Set Tokens in Cookies
     res.cookie('accessToken', accessToken, cookiesOptions);
-    res.cookie('refreshToken', refreshToken, cookiesOptions);
+    res.cookie('refreshToken', refreshToken, {
+      ...cookiesOptions,
+      maxAge: refreshTokenExpiration * 1000,
+    });
 
     // Send Response
     return res.status(201).json({
@@ -85,15 +93,22 @@ async function login(req, res) {
     }
 
     // Create new session
-    const sessionId = createSession(userId, req.headers['user-agent'], req.ip);
+    const sessionId = await createSession(
+      userId,
+      req.headers['user-agent'],
+      req.ip
+    );
 
     // Generate Access and Refresh Tokens
-    const accessToken = generateAccessToken(userId, sessionId);
+    const accessToken = generateAccessToken(user, sessionId);
     const refreshToken = generateRefreshToken(sessionId);
 
     // Set Tokens in Cookies
     res.cookie('accessToken', accessToken, cookiesOptions);
-    res.cookie('refreshToken', refreshToken, cookiesOptions);
+    res.cookie('refreshToken', refreshToken, {
+      ...cookiesOptions,
+      maxAge: refreshTokenExpiration * 1000,
+    });
 
     // Send Response
     return res.status(200).json({
@@ -110,4 +125,15 @@ async function login(req, res) {
   }
 }
 
-export { signup, login };
+async function getUser(req, res) {
+  // Get user data from req.data (passed through validateTokens middleware)
+  const data = req.data;
+
+  // Send response
+  return res.status(200).json({
+    data,
+    message: `User ${data.username} logged in successfully from cookies`,
+  });
+}
+
+export { signup, login, getUser };

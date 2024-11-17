@@ -69,7 +69,7 @@ export default function AuthForm({ type }: { type: 'login' | 'signup' }) {
       const { data, message }: { data: User; message: string } =
         await response.json();
       setUser(data);
-      addEvent({ time: new Date().toLocaleDateString(), message });
+      addEvent({ time: new Date().toLocaleTimeString(), message });
     } catch (error) {
       console.error(`AuthForm ${type} onSubmit error`, error);
     }
