@@ -9,8 +9,12 @@ export default function EventProvider({
 }) {
   const [events, setEvents] = useState<Event[]>([]);
 
-  function addEvent(newEvent: Event) {
-    setEvents(prev => [...prev, newEvent]);
+  function addEvent(message: string) {
+    const time = new Date().toLocaleTimeString(undefined, {
+      timeStyle: 'medium',
+      hourCycle: 'h24',
+    });
+    setEvents(prev => [...prev, { time, message }]);
   }
 
   return (

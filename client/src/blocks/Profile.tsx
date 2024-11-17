@@ -8,17 +8,21 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import Logout from './Logout';
 
-export default function User() {
+export default function Profile() {
   const { user } = useAuth();
   if (!user) return null;
 
   return (
-    <Card className="flex flex-col justify-between">
+    <Card>
       <CardHeader>
         <CardTitle>{user.username}</CardTitle>
-        <CardDescription>{user.role}</CardDescription>
+        <CardDescription className="space-x-2">
+          {user.roles.map(r => (
+            <span key={r}>{r}</span>
+          ))}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Avatar>
@@ -26,9 +30,7 @@ export default function User() {
         </Avatar>
       </CardContent>
       <CardFooter>
-        <Button variant="destructive" className="w-full">
-          Logout
-        </Button>
+        <Logout />
       </CardFooter>
     </Card>
   );

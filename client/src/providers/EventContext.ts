@@ -3,7 +3,7 @@ import { createContext } from 'react';
 
 type Context = {
   events: Event[];
-  addEvent: (newEvent: Event) => void;
+  addEvent: (message: string) => void;
 };
 
 export const EventContext = createContext<Context | null>(null);

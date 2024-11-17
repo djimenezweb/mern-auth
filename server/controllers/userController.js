@@ -8,6 +8,7 @@ import {
 } from '../utils/index.js';
 import { cookiesOptions } from '../config/cookiesOptions.js';
 import { refreshTokenExpiration } from '../config/expireOptions.js';
+import { Session } from '../models/Session.js';
 
 async function signup(req, res) {
   // Get username and password from Request
@@ -136,4 +137,27 @@ async function getUser(req, res) {
   });
 }
 
-export { signup, login, getUser };
+async function logOut(req, res) {
+  // Get sessionId from req.data (passed through validateTokens middleware)
+  const { sessionId } = req.data;
+
+  // Delete session from dataBase
+  if (sessionId) {
+    try {
+      await Session.findByIdAndDelete(sessionId);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'An error ocurred' });
+    }
+  }
+
+  // Clear cookies
+  res.clearCookie('accessToken').clearCookie('refreshToken');
+
+  // Send response
+  return res
+    .status(200)
+    .json({ message: `User ${req.data.username} logged out` });
+}
+
+export { signup, login, getUser, logOut };

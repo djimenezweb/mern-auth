@@ -18,6 +18,7 @@ const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 
 export async function validateTokens(req, res, next) {
   // Get Access and Refresh Tokens from cookies
+  console.log('cookies', req.cookies);
   const { accessToken, refreshToken } = req.cookies;
 
   // If no Refresh Token, send unauthorized error
@@ -29,7 +30,7 @@ export async function validateTokens(req, res, next) {
   }
 
   // If no Access Token, decode Refresh Token
-  if (!accessToken) {
+  if (refreshToken && !accessToken) {
     jwt.verify(refreshToken, refreshTokenSecret, async (err, decoded) => {
       if (err) {
         return res.status(403).json({ message: 'Invalid Refresh Token' });
