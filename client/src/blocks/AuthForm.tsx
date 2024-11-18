@@ -23,6 +23,7 @@ import { API_URL } from '@/env';
 import useAuth from '@/hooks/useAuth';
 import { User } from '@/types';
 import useEvent from '@/hooks/useEvents';
+import { fetchPostOptions } from '@/config/fetchOptions';
 
 const formSchema = z.object({
   username: z
@@ -37,7 +38,13 @@ const formSchema = z.object({
     .max(30, { message: 'Must be 30 or fewer characters long' }),
 });
 
-export default function AuthForm({ type }: { type: 'login' | 'signup' }) {
+export default function AuthForm({
+  type,
+  disabled,
+}: {
+  type: 'login' | 'signup';
+  disabled: boolean;
+}) {
   const { setUser } = useAuth();
   const { addEvent } = useEvent();
 
@@ -52,12 +59,7 @@ export default function AuthForm({ type }: { type: 'login' | 'signup' }) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await fetch(`${API_URL}/api/auth/${type}`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
+        ...fetchPostOptions,
         body: JSON.stringify(values),
       });
 
@@ -95,7 +97,11 @@ export default function AuthForm({ type }: { type: 'login' | 'signup' }) {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="Username" {...field} />
+                    <Input
+                      placeholder="Username"
+                      disabled={disabled}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -108,7 +114,11 @@ export default function AuthForm({ type }: { type: 'login' | 'signup' }) {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="Password" {...field} />
+                    <Input
+                      placeholder="Password"
+                      disabled={disabled}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -116,7 +126,11 @@ export default function AuthForm({ type }: { type: 'login' | 'signup' }) {
             />
           </CardContent>
           <CardFooter>
-            <Button variant="default" className="w-full" type="submit">
+            <Button
+              variant="default"
+              className="w-full"
+              type="submit"
+              disabled={disabled}>
               {type === 'login' ? 'Login' : 'Signup'}
             </Button>
           </CardFooter>

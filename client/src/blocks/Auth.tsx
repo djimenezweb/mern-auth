@@ -16,10 +16,10 @@ export default function Auth() {
         </TabsTrigger>
       </TabsList>
       <TabsContent value="login">
-        <AuthForm type="login" />
+        <AuthForm type="login" disabled={!!user} />
       </TabsContent>
       <TabsContent value="signup">
-        <AuthForm type="signup" />
+        <AuthForm type="signup" disabled={!!user} />
       </TabsContent>
     </Tabs>
   );

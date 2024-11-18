@@ -13,17 +13,14 @@ if (typeof process.env.REFRESH_TOKEN_SECRET === 'undefined') {
   throw new Error('Environment variable REFRESH_TOKEN_SECRET is undefined');
 }
 
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
 
 export async function validateTokens(req, res, next) {
   // Get Access and Refresh Tokens from cookies
-  console.log('cookies', req.cookies);
   const { accessToken, refreshToken } = req.cookies;
 
   // If no Refresh Token, send unauthorized error
   if (!refreshToken) {
-    console.log('No Tokens Found');
     return res
       .status(401)
       .json({ message: 'No Refresh Token, please log in to continue' });
@@ -31,7 +28,7 @@ export async function validateTokens(req, res, next) {
 
   // If no Access Token, decode Refresh Token
   if (refreshToken && !accessToken) {
-    jwt.verify(refreshToken, refreshTokenSecret, async (err, decoded) => {
+    jwt.verify(refreshToken, REFRESH_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
         return res.status(403).json({ message: 'Invalid Refresh Token' });
       }
@@ -75,22 +72,21 @@ export async function validateTokens(req, res, next) {
   }
 
   // If Access Token check its validity
-  // Find user
-  // Return user
   if (accessToken) {
-    jwt.verify(accessToken, accessTokenSecret, (err, decoded) => {
+    jwt.verify(accessToken, ACCESS_TOKEN_SECRET, (err, decoded) => {
       if (err) {
         return res.status(403).json({ message: 'Invalid Access Token' });
       }
       // decoded = { userId: '123', roles: ['user', 'admin'], sessionId: '123', iat: 123 }
 
+      // Remove iat
+      if ('iat' in decoded) {
+        delete decoded.iat;
+      }
+
       // Make decoded available to further methods as req.data
       req.data = decoded;
 
-      // Remove iat
-      if ('iat' in req.data) {
-        delete req.data.iat;
-      }
       next();
     });
   }

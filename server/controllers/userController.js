@@ -2,12 +2,8 @@ import { User } from '../models/User.js';
 import {
   hashPassword,
   comparePasswords,
-  generateAccessToken,
-  generateRefreshToken,
-  createSession,
+  createSessionTokensAndSetCookies,
 } from '../utils/index.js';
-import { cookiesOptions } from '../config/cookiesOptions.js';
-import { refreshTokenExpiration } from '../config/expireOptions.js';
 import { Session } from '../models/Session.js';
 
 async function signup(req, res) {
@@ -33,30 +29,14 @@ async function signup(req, res) {
 
     // Save username and hashed password to database
     const user = await User.create({ username, password: hashedPassword });
-    const userId = user._id.toString();
 
-    // Create new session
-    const sessionId = await createSession(
-      userId,
-      req.headers['user-agent'],
-      req.ip
-    );
-
-    // Generate Access and Refresh Tokens
-    const accessToken = generateAccessToken(user, sessionId);
-    const refreshToken = generateRefreshToken(sessionId);
-
-    // Set Tokens in Cookies
-    res.cookie('accessToken', accessToken, cookiesOptions);
-    res.cookie('refreshToken', refreshToken, {
-      ...cookiesOptions,
-      maxAge: refreshTokenExpiration * 1000,
-    });
+    // Create new Session, generate Access and Refresh Tokens, and set Cookies
+    await createSessionTokensAndSetCookies(user, req, res);
 
     // Send Response
     return res.status(201).json({
       data: {
-        userId: userId,
+        userId: user._id.toString(),
         username: user.username,
         roles: user.roles,
       },
@@ -85,7 +65,6 @@ async function login(req, res) {
     if (!user) {
       return res.status(409).json({ message: 'User does not exist' });
     }
-    const userId = user._id.toString();
 
     // Compare password from database against password from login form
     const match = await comparePasswords(password, user.password);
@@ -93,28 +72,13 @@ async function login(req, res) {
       return res.status(400).json({ message: 'Incorrect password' });
     }
 
-    // Create new session
-    const sessionId = await createSession(
-      userId,
-      req.headers['user-agent'],
-      req.ip
-    );
-
-    // Generate Access and Refresh Tokens
-    const accessToken = generateAccessToken(user, sessionId);
-    const refreshToken = generateRefreshToken(sessionId);
-
-    // Set Tokens in Cookies
-    res.cookie('accessToken', accessToken, cookiesOptions);
-    res.cookie('refreshToken', refreshToken, {
-      ...cookiesOptions,
-      maxAge: refreshTokenExpiration * 1000,
-    });
+    // Create new Session, generate Access and Refresh Tokens, and set Cookies
+    await createSessionTokensAndSetCookies(user, req, res);
 
     // Send Response
     return res.status(200).json({
       data: {
-        userId: userId,
+        userId: user._id.toString(),
         username: user.username,
         roles: user.roles,
       },

@@ -3,7 +3,10 @@ import { Session } from '../models/Session.js';
 import { cookiesOptions } from '../config/cookiesOptions.js';
 import { generateAccessToken, generateRefreshToken } from './generateTokens.js';
 
-export async function getUserIdFromTokens(accessToken, refreshToken, res) {
+// BORRAR ARCHIVO ????????
+
+// export
+async function getUserIdFromTokens(accessToken, refreshToken, res) {
   // If no Access Token, get and return userId from Refresh Token
   if (!accessToken) return getUserIdFromRefreshToken(refreshToken, res);
 

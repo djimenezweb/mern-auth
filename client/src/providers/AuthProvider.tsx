@@ -1,19 +1,35 @@
 import { User } from '@/types';
 import { AuthContext } from './AuthContext';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { API_URL } from '@/env';
+import { fetchGetOptions } from '@/config/fetchOptions';
+import useEvent from '@/hooks/useEvents';
 
 export default function AuthProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // const testUser: User = {
-  //   userId: '63215542122451',
-  //   username: 'Daniel',
-  //   role: ['admin'],
-  // };
-
   const [user, setUser] = useState<User | null>(null);
+  const { addEvent } = useEvent();
+
+  const attempLogin = useCallback(async () => {
+    const response = await fetch(`${API_URL}/api/auth/user`, fetchGetOptions);
+    if (!response.ok) {
+      addEvent('Attempt to auto login failed');
+      setUser(null);
+      return;
+    }
+    const { data, message }: { data: User; message: string } =
+      await response.json();
+    addEvent(message);
+    setUser(data);
+  }, []);
+
+  // Attempt to login in first render from cookies
+  useEffect(() => {
+    attempLogin();
+  }, [attempLogin]);
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

@@ -13,25 +13,24 @@ if (typeof process.env.PORT === 'undefined') {
 
 const port = process.env.PORT;
 
+// Middleware
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Routes
 app.use('/api/auth', userRoutes);
-
 app.get('/', (req, res) => {
-  console.log(req.headers.cookie);
-  console.log(req.cookies);
-
-  res.status(200).json(req.headers);
-  // res.send('Server root');
+  res.send('Server root');
 });
 
+// Start server
 async function startServer() {
   try {
     await connectDB();
     console.log('Connected to database');
   } catch (error) {
-    console.log('Failed to connect to database');
+    console.log('Failed to connect to database', error);
   }
   app.listen(port, () => {
     console.log(`Server listening on port ${port}`);

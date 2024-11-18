@@ -6,8 +6,8 @@ import EventProvider from './providers/EventProvider';
 
 function App() {
   return (
-    <AuthProvider>
-      <EventProvider>
+    <EventProvider>
+      <AuthProvider>
         <main className="mx-auto grid grid-cols-3 grid-rows-2 max-w-7xl gap-2">
           <Events />
           <RequireAuth>
@@ -22,8 +22,8 @@ function App() {
             </RequireAuth>
           </div>
         </main>
-      </EventProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </EventProvider>
   );
 }
 

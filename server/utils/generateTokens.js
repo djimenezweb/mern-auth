@@ -9,20 +9,19 @@ if (typeof process.env.REFRESH_TOKEN_SECRET === 'undefined') {
   throw new Error('Environment variable REFRESH_TOKEN_SECRET is undefined');
 }
 
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+const { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } = process.env;
 
 function generateAccessToken(user, sessionId) {
   const { _id, roles, username } = user;
   const token = jwt.sign(
     { userId: _id.toString(), roles, username, sessionId },
-    accessTokenSecret
+    ACCESS_TOKEN_SECRET
   );
   return token;
 }
 
 function generateRefreshToken(sessionId) {
-  const token = jwt.sign({ sessionId }, refreshTokenSecret, {
+  const token = jwt.sign({ sessionId }, REFRESH_TOKEN_SECRET, {
     expiresIn: refreshTokenExpiration,
   });
   return token;
