@@ -73,6 +73,7 @@ export default function AuthForm({
       setUser(data);
       addEvent(message);
     } catch (error) {
+      addEvent('Error sending fetch request');
       console.error(`AuthForm ${type} onSubmit error`, error);
     }
   }

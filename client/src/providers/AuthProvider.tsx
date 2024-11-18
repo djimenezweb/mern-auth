@@ -13,6 +13,14 @@ export default function AuthProvider({
   const [user, setUser] = useState<User | null>(null);
   const { addEvent } = useEvent();
 
+  async function logout() {
+    const response = await fetch(`${API_URL}/api/auth/logout`, fetchGetOptions);
+    if (!response.ok) return;
+    const { message }: { message: string } = await response.json();
+    addEvent(message);
+    setUser(null);
+  }
+
   const attempLogin = useCallback(async () => {
     const response = await fetch(`${API_URL}/api/auth/user`, fetchGetOptions);
     if (!response.ok) {
@@ -32,7 +40,7 @@ export default function AuthProvider({
   }, [attempLogin]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

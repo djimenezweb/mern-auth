@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { connectDB } from './config/db.js';
 import userRoutes from './routes/userRoutes.js';
+import sessionRoutes from './routes/sessionRoutes.js';
 import { corsOptions } from './config/corsOptions.js';
 import cookieParser from 'cookie-parser';
 
@@ -20,6 +21,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', userRoutes);
+app.use('/api/session', sessionRoutes);
 app.get('/', (req, res) => {
   res.send('Server root');
 });
