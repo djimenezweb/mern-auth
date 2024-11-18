@@ -1,6 +1,6 @@
 import { Event } from '@/types';
 import { EventContext } from './EventContext';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export default function EventProvider({
   children,
@@ -9,17 +9,19 @@ export default function EventProvider({
 }) {
   const [events, setEvents] = useState<Event[]>([]);
 
-  function addEvent(message: string) {
+  const addEvent = useCallback((message: string) => {
     const time = new Date().toLocaleTimeString(undefined, {
       timeStyle: 'medium',
       hourCycle: 'h24',
     });
     setEvents(prev => [...prev, { time, message }]);
-  }
+  }, []);
+
+  const value = useMemo(() => {
+    return { events, addEvent };
+  }, [events, addEvent]);
 
   return (
-    <EventContext.Provider value={{ events, addEvent }}>
-      {children}
-    </EventContext.Provider>
+    <EventContext.Provider value={value}>{children}</EventContext.Provider>
   );
 }

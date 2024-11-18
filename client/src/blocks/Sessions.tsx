@@ -20,19 +20,6 @@ export default function Sessions() {
   const { addEvent } = useEvent();
   const [sessions, setSessions] = useState<Session[]>([]);
 
-  async function getSessions() {
-    if (!user) return;
-    const response = await fetch(
-      `${API_URL}/api/session/${user.userId}`,
-      fetchGetOptions
-    );
-    if (!response.ok) return;
-    const { data, message }: { data: Session[]; message: string } =
-      await response.json();
-    setSessions(data);
-    addEvent(message);
-  }
-
   async function closeSession(sessionId: string) {
     if (!user) return;
     const response = await fetch(
@@ -47,8 +34,28 @@ export default function Sessions() {
   }
 
   useEffect(() => {
+    let ignore = false;
+
+    async function getSessions() {
+      if (!user) return;
+      const response = await fetch(
+        `${API_URL}/api/session/${user.userId}`,
+        fetchGetOptions
+      );
+      if (!response.ok) return;
+      const { data, message }: { data: Session[]; message: string } =
+        await response.json();
+      if (!ignore) {
+        setSessions(data);
+        addEvent(message);
+      }
+    }
+
     getSessions();
-  }, []);
+    return () => {
+      ignore = true;
+    };
+  }, [user, addEvent]);
 
   return (
     <Card>
