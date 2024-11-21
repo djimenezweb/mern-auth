@@ -6,7 +6,7 @@ export default {
     fontFamily: {
       sans: ['Geist', 'ui-sans-serif', 'system-ui'],
       serif: ['ui-serif'],
-      mono: ['ui-monospace'],
+      mono: ['monospace', 'ui-monospace'],
     },
     extend: {
       borderRadius: {

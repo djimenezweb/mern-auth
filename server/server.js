@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { connectDB } from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import sessionRoutes from './routes/sessionRoutes.js';
 import { corsOptions } from './config/corsOptions.js';
@@ -15,13 +16,18 @@ if (typeof process.env.PORT === 'undefined') {
 const port = process.env.PORT;
 
 // Middleware
-app.use(cookieParser());
 app.use(cors(corsOptions));
+app.use(cookieParser());
 app.use(express.json());
 
+// Artificial delay for testing purposes
+// app.use((req, res, next) => setTimeout(next, 3000));
+
 // Routes
-app.use('/api/auth', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/session', sessionRoutes);
+
 app.get('/', (req, res) => {
   res.send('Server root');
 });

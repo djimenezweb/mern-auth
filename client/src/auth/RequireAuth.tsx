@@ -1,16 +1,29 @@
 import useAuth from '@/hooks/useAuth';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Role } from '@/types';
 
-const RequireAuth = ({ children }: { children: JSX.Element }) => {
+type RequireAuthProps = {
+  children: JSX.Element;
+  role?: Role;
+};
+
+const RequireAuth = ({ children, role = 'user' }: RequireAuthProps) => {
   const { user } = useAuth();
 
-  if (!user)
+  if (!user || !user.roles.includes(role))
     return (
       <Card>
-        <CardContent>
-          <p>Users only</p>
-          <p>Login or signup to continue</p>
-        </CardContent>
+        <CardHeader>
+          <CardTitle>
+            <span className="capitalize">{role}s</span> only
+          </CardTitle>
+          <CardDescription>Login or signup to continue</CardDescription>
+        </CardHeader>
       </Card>
     );
 

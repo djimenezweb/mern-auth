@@ -1,7 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect } from 'react';
+import { API_URL } from '@/env';
 import useAuth from '@/hooks/useAuth';
-import { Session } from '@/types';
-import { useEffect, useState } from 'react';
+import useFetch from '@/hooks/useFetch';
+import { ApiResponse, Session } from '@/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -11,51 +13,51 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { API_URL } from '@/env';
-import { fetchDeleteOptions, fetchGetOptions } from '@/config/fetchOptions';
-import useEvent from '@/hooks/useEvents';
+import { fetchDeleteOptions } from '@/config/fetchOptions';
+import useEvent from '@/hooks/useEvent';
 
 export default function Sessions() {
   const { user } = useAuth();
   const { addEvent } = useEvent();
-  const [sessions, setSessions] = useState<Session[]>([]);
+  const { data, isLoading, isError, error, refetch } = useFetch<
+    ApiResponse<Session[]>
+  >(`${API_URL}/api/session/${user?.userId}`);
 
-  async function closeSession(sessionId: string) {
-    if (!user) return;
-    const response = await fetch(
-      `${API_URL}/api/session/${sessionId}`,
-      fetchDeleteOptions
-    );
-    if (!response.ok) return;
-    const { data, message }: { data: Session[]; message: string } =
-      await response.json();
-    setSessions(data);
-    addEvent(message);
-  }
+  // This useEffect solves the folloing warning:
+  // Cannot update a component (`EventProvider`) while rendering a different component (`Sessions`).
 
   useEffect(() => {
     let ignore = false;
-
-    async function getSessions() {
-      if (!user) return;
-      const response = await fetch(
-        `${API_URL}/api/session/${user.userId}`,
-        fetchGetOptions
-      );
-      if (!response.ok) return;
-      const { data, message }: { data: Session[]; message: string } =
-        await response.json();
-      if (!ignore) {
-        setSessions(data);
-        addEvent(message);
-      }
+    if (isLoading) return;
+    if (!ignore && data?.message) {
+      addEvent(data?.message || error, data?.time);
     }
-
-    getSessions();
     return () => {
       ignore = true;
     };
-  }, [user, addEvent]);
+  }, [data?.message]);
+
+  async function closeSession(sessionId: string) {
+    if (!user) return;
+    try {
+      const response = await fetch(
+        `${API_URL}/api/session/${sessionId}`,
+        fetchDeleteOptions
+      );
+      if (!response.ok) {
+        console.error(response);
+        throw new Error('Response not ok');
+      }
+      const json = (await response.json()) as Awaited<Promise<ApiResponse>>;
+      addEvent(json.message);
+      refetch();
+    } catch (err) {
+      console.error(err);
+      if (err instanceof Error) {
+        addEvent(JSON.stringify(err.message));
+      }
+    }
+  }
 
   return (
     <Card>
@@ -63,40 +65,49 @@ export default function Sessions() {
         <CardTitle>Sessions</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Device</TableHead>
-              <TableHead>OS</TableHead>
-              <TableHead>Agent</TableHead>
-              <TableHead>IP</TableHead>
-              <TableHead>Close</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sessions &&
-              sessions.length > 0 &&
-              sessions.map(s => (
-                <TableRow key={s._id}>
-                  <TableCell className="capitalize">
-                    {s.userAgentDevice || 'unknown'}
-                  </TableCell>
-                  <TableCell className="capitalize">
-                    {s.userAgentOS || 'unknown'}
-                  </TableCell>
-                  <TableCell className="capitalize">
-                    {s.userAgentName || 'unknown'}
-                  </TableCell>
-                  <TableCell>{s.ip}</TableCell>
-                  <TableCell>
-                    <Button size="sm" onClick={() => closeSession(s._id)}>
-                      close
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-        </Table>
+        {isLoading && <p>Loading</p>}
+
+        {isError && <p>Error: {error}</p>}
+
+        {data && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Device</TableHead>
+                <TableHead>OS</TableHead>
+                <TableHead>Agent</TableHead>
+                <TableHead>IP</TableHead>
+                <TableHead>Close</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.sessions &&
+                data.sessions.length > 0 &&
+                data.sessions.map(s => (
+                  <TableRow key={s._id}>
+                    <TableCell className="capitalize">
+                      {s.userAgentDevice || 'unknown'}
+                    </TableCell>
+                    <TableCell className="capitalize">
+                      {s.userAgentOS || 'unknown'}
+                    </TableCell>
+                    <TableCell className="capitalize">
+                      {s.userAgentName || 'unknown'}
+                    </TableCell>
+                    <TableCell>{s.ip}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => closeSession(s._id)}>
+                        close
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

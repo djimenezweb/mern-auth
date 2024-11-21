@@ -1,39 +1,20 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  // TableCaption,
-  // TableFooter,
-  // TableHead,
-  // TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  // CardDescription,
-  // CardFooter,
-  CardTitle,
-} from '@/components/ui/card';
-import useEvent from '@/hooks/useEvents';
+import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
+import { Card, CardContent } from '@/components/ui/card';
+import useEvent from '@/hooks/useEvent';
 
 export default function Events() {
   const { events } = useEvent();
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Events</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card className="dark bg-black">
+      <CardContent className="pt-4 font-mono">
         <Table>
           <TableBody>
             {events &&
               events.length > 0 &&
               events.map((e, i) => (
                 <TableRow key={`${e.message}-${i}`}>
-                  <TableCell>{e.time}</TableCell>
-                  <TableCell>{e.message}</TableCell>
+                  <TableCell className="align-top pl-0">{e.time}</TableCell>
+                  <TableCell className="align-top pr-0">{e.message}</TableCell>
                 </TableRow>
               ))}
           </TableBody>

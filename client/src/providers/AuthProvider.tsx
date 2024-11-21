@@ -1,9 +1,14 @@
-import { User } from '@/types';
+import { ApiResponse, User } from '@/types';
 import { AuthContext } from './AuthContext';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import useEvent from '@/hooks/useEvent';
 import { API_URL } from '@/env';
 import { fetchGetOptions } from '@/config/fetchOptions';
-import useEvent from '@/hooks/useEvents';
+
+async function getUserFromCookies(): Promise<ApiResponse<User>> {
+  const res = await fetch(`${API_URL}/api/users/me`, fetchGetOptions);
+  return res.json();
+}
 
 export default function AuthProvider({
   children,
@@ -13,32 +18,24 @@ export default function AuthProvider({
   const [user, setUser] = useState<User | null>(null);
   const { addEvent } = useEvent();
 
-  const logout = useCallback(async () => {
-    const response = await fetch(`${API_URL}/api/auth/logout`, fetchGetOptions);
-    if (!response.ok) return;
-    const { message }: { message: string } = await response.json();
-    addEvent(message);
-    setUser(null);
-  }, [addEvent]);
-
-  // Attempt to login in first render from cookies
+  // Attempt to login in first render from tokens stored in cookies
   useEffect(() => {
     let ignore = false;
 
     async function attempLogin() {
-      const response = await fetch(`${API_URL}/api/auth/user`, fetchGetOptions);
-      if (!response.ok) {
+      try {
+        const response = await getUserFromCookies();
+        if (!ignore && response.message) {
+          addEvent(response.message, response.time);
+        }
+        if (!ignore && response.user) {
+          setUser(response.user);
+        }
+      } catch (error) {
+        console.error(error);
         if (!ignore) {
           addEvent('Attempt to auto login failed');
-          setUser(null);
         }
-        return;
-      }
-      const { data, message }: { data: User; message: string } =
-        await response.json();
-      if (!ignore) {
-        addEvent(message);
-        setUser(data);
       }
     }
 
@@ -50,8 +47,16 @@ export default function AuthProvider({
   }, [addEvent]);
 
   const value = useMemo(() => {
-    return { user, setUser, logout };
-  }, [user, logout]);
+    return { user, setUser };
+  }, [user]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+// const logout = useCallback(async () => {
+//   const response = await fetch(`${API_URL}/api/auth/logout`, fetchGetOptions);
+//   if (!response.ok) return;
+//   const { message }: { message: string } = await response.json();
+//   addEvent(message);
+//   setUser(null);
+// }, [addEvent]);

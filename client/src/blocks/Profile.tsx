@@ -6,8 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { LogOut, EllipsisVertical } from 'lucide-react';
-
+import { LogOut as LogOutIcon, EllipsisVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   if (!user) return null;
 
   return (
@@ -44,8 +43,8 @@ export default function Profile() {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuGroup>
-                <DropdownMenuItem onClick={logout}>
-                  <LogOut />
+                <DropdownMenuItem onClick={() => console.log('log out')}>
+                  <LogOutIcon />
                   <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>

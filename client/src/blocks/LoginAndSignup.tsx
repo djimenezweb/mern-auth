@@ -1,8 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AuthForm from './AuthForm';
+import AuthForm from './LoginAndSignupForm';
 import useAuth from '@/hooks/useAuth';
 
-export default function Auth() {
+export default function LoginAndSignup() {
   const { user } = useAuth();
 
   return (

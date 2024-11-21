@@ -21,8 +21,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { API_URL } from '@/env';
 import useAuth from '@/hooks/useAuth';
-import { User } from '@/types';
-import useEvent from '@/hooks/useEvents';
+import useEvent from '@/hooks/useEvent';
+import { ApiResponse, User } from '@/types';
 import { fetchPostOptions } from '@/config/fetchOptions';
 
 const formSchema = z.object({
@@ -38,7 +38,7 @@ const formSchema = z.object({
     .max(30, { message: 'Must be 30 or fewer characters long' }),
 });
 
-export default function AuthForm({
+export default function LoginAndSignupForm({
   type,
   disabled,
 }: {
@@ -47,6 +47,21 @@ export default function AuthForm({
 }) {
   const { setUser } = useAuth();
   const { addEvent } = useEvent();
+
+  async function loginOrSignUp(
+    values: z.infer<typeof formSchema>
+  ): Promise<ApiResponse<User>> {
+    const res = await fetch(`${API_URL}/api/auth/${type}`, {
+      ...fetchPostOptions,
+      body: JSON.stringify(values),
+    });
+    if (!res.ok) {
+      console.error('Error. Request: ', res);
+      throw new Error('Network response was not ok');
+    }
+    console.log('Request: ', res);
+    return res.json();
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,20 +73,12 @@ export default function AuthForm({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await fetch(`${API_URL}/api/auth/${type}`, {
-        ...fetchPostOptions,
-        body: JSON.stringify(values),
-      });
+      const res = await loginOrSignUp(values);
+      addEvent(res.message);
 
-      if (!response.ok) {
-        setUser(null);
-        console.log('handle error');
+      if (res?.user) {
+        setUser(res.user);
       }
-
-      const { data, message }: { data: User; message: string } =
-        await response.json();
-      setUser(data);
-      addEvent(message);
     } catch (error) {
       addEvent('Error sending fetch request');
       console.error(`AuthForm ${type} onSubmit error`, error);

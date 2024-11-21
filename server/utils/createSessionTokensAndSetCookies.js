@@ -1,5 +1,7 @@
-import { cookiesOptions } from '../config/cookiesOptions.js';
-import { refreshTokenExpiration } from '../config/expireOptions.js';
+import {
+  accessTokenCookiesOptions,
+  refreshTokenCookiesOptions,
+} from '../config/cookiesOptions.js';
 import {
   createSession,
   generateAccessToken,
@@ -19,9 +21,6 @@ export async function createSessionTokensAndSetCookies(user, req, res) {
   const refreshToken = generateRefreshToken(sessionId);
 
   // Set Tokens in Cookies
-  res.cookie('accessToken', accessToken, cookiesOptions);
-  res.cookie('refreshToken', refreshToken, {
-    ...cookiesOptions,
-    maxAge: refreshTokenExpiration * 1000,
-  });
+  res.cookie('accessToken', accessToken, accessTokenCookiesOptions);
+  res.cookie('refreshToken', refreshToken, refreshTokenCookiesOptions);
 }

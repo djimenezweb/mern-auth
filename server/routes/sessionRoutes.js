@@ -7,8 +7,12 @@ import {
 
 const router = express.Router();
 
-// /api/session
+// ENDPOINTS:
+
+// GET (base_url)/api/session/:userId
 router.get('/:userId', validateTokens, getSessionsFromUserId);
+
+// DELETE (base_url)/api/session/:sessionId
 router.delete('/:sessionId', validateTokens, deleteSessionFromSessionId);
 
 export default router;
