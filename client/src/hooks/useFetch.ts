@@ -14,18 +14,20 @@ function useFetch<Type>(url: string, options: RequestInit = fetchGetOptions) {
 
   // Function definition
   async function startFetching(signal: AbortSignal) {
+    // Reset all states
+    setIsLoading(true);
+    setIsError(false);
+    setError('');
+    setData(null);
+
     try {
       const res = await fetch(url, { ...options, signal });
-      if (!res.ok) {
-        console.log('res when res not ok', res);
-        throw new Error('An error ocurred - res not ok');
-      }
       const json = await res.json();
-      setIsError(false);
+      // Don't check for res.ok because we want the message even if status is other than 200
       setData(json);
     } catch (err) {
-      console.error(err);
       if (err instanceof Error) {
+        // Don't trigger error if AbortController error
         if (err.name !== 'AbortError') {
           setIsError(true);
           setError(JSON.stringify(err.message));
@@ -45,14 +47,7 @@ function useFetch<Type>(url: string, options: RequestInit = fetchGetOptions) {
     startFetching(controller.signal);
 
     // useEffect cleanup function
-    return () => {
-      controller.abort();
-      // Reset all states
-      setIsLoading(true);
-      setIsError(false);
-      setError('');
-      setData(null);
-    };
+    return () => controller.abort();
   }, [url, refetchFlag]);
 
   return { data, isLoading, isError, error, refetch };

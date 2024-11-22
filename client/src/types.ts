@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type Event = {
   time: string;
   message: string;
@@ -29,3 +31,18 @@ export type ApiResponse<Type = void> = {
   session?: Type extends Session ? Session : never;
   sessions?: Type extends Session[] ? Session[] : never;
 };
+
+export const loginAndSignUpFormSchema = z.object({
+  username: z
+    .string()
+    .min(1, { message: 'Username is required' })
+    .min(3, { message: 'Must be 3 or more characters long' })
+    .max(30, { message: 'Must be 30 or fewer characters long' }),
+  password: z
+    .string()
+    .min(1, { message: 'Password is required' })
+    .min(4, { message: 'Must be 4 or more characters long' })
+    .max(30, { message: 'Must be 30 or fewer characters long' }),
+});
+
+export type LoginAndSignUpForm = z.infer<typeof loginAndSignUpFormSchema>;

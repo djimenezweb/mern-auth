@@ -19,24 +19,30 @@ import useEvent from '@/hooks/useEvent';
 export default function Sessions() {
   const { user } = useAuth();
   const { addEvent } = useEvent();
-  const { data, isLoading, isError, error, refetch } = useFetch<
-    ApiResponse<Session[]>
-  >(`${API_URL}/api/session/${user?.userId}`);
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch: refetchSessions,
+  } = useFetch<ApiResponse<Session[]>>(
+    `${API_URL}/api/session/${user?.userId}`
+  );
 
   // This useEffect solves the folloing warning:
   // Cannot update a component (`EventProvider`) while rendering a different component (`Sessions`).
-
   useEffect(() => {
     let ignore = false;
     if (isLoading) return;
     if (!ignore && data?.message) {
-      addEvent(data?.message || error, data?.time);
+      addEvent(data?.message ?? error, data?.time);
     }
     return () => {
       ignore = true;
     };
-  }, [data?.message]);
+  }, [data?.message, data?.time]);
 
+  // Close session function: deletes session and fetch sessions again
   async function closeSession(sessionId: string) {
     if (!user) return;
     try {
@@ -44,17 +50,14 @@ export default function Sessions() {
         `${API_URL}/api/session/${sessionId}`,
         fetchDeleteOptions
       );
-      if (!response.ok) {
-        console.error(response);
-        throw new Error('Response not ok');
+      const json = (await response.json()) as ApiResponse;
+      if (json.message) {
+        addEvent(json.message, json.time);
       }
-      const json = (await response.json()) as Awaited<Promise<ApiResponse>>;
-      addEvent(json.message);
-      refetch();
+      refetchSessions();
     } catch (err) {
-      console.error(err);
       if (err instanceof Error) {
-        addEvent(JSON.stringify(err.message));
+        addEvent('Error: ' + err.message);
       }
     }
   }

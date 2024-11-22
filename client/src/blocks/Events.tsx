@@ -13,7 +13,9 @@ export default function Events() {
               events.length > 0 &&
               events.map((e, i) => (
                 <TableRow key={`${e.message}-${i}`}>
-                  <TableCell className="align-top pl-0">{e.time}</TableCell>
+                  <TableCell className="align-top pl-0 opacity-65">
+                    {e.time}
+                  </TableCell>
                   <TableCell className="align-top pr-0">{e.message}</TableCell>
                 </TableRow>
               ))}

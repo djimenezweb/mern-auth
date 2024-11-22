@@ -19,4 +19,8 @@ const refreshTokenCookiesOptions = {
   maxAge: refreshTokenExpiration * 1000,
 };
 
-export { accessTokenCookiesOptions, refreshTokenCookiesOptions };
+export {
+  cookiesOptions,
+  accessTokenCookiesOptions,
+  refreshTokenCookiesOptions,
+};

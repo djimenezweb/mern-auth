@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
@@ -19,70 +18,30 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { API_URL } from '@/env';
 import useAuth from '@/hooks/useAuth';
-import useEvent from '@/hooks/useEvent';
-import { ApiResponse, User } from '@/types';
-import { fetchPostOptions } from '@/config/fetchOptions';
+import { LoginAndSignUpForm, loginAndSignUpFormSchema } from '@/types';
 
-const formSchema = z.object({
-  username: z
-    .string()
-    .min(1, { message: 'Username is required' })
-    .min(3, { message: 'Must be 3 or more characters long' })
-    .max(30, { message: 'Must be 30 or fewer characters long' }),
-  password: z
-    .string()
-    .min(1, { message: 'Password is required' })
-    .min(4, { message: 'Must be 4 or more characters long' })
-    .max(30, { message: 'Must be 30 or fewer characters long' }),
-});
+type LoginAndSignupFormProps = {
+  type: 'login' | 'signup';
+  disabled: boolean;
+};
 
 export default function LoginAndSignupForm({
   type,
   disabled,
-}: {
-  type: 'login' | 'signup';
-  disabled: boolean;
-}) {
-  const { setUser } = useAuth();
-  const { addEvent } = useEvent();
+}: LoginAndSignupFormProps) {
+  const { loginOrSignup } = useAuth();
 
-  async function loginOrSignUp(
-    values: z.infer<typeof formSchema>
-  ): Promise<ApiResponse<User>> {
-    const res = await fetch(`${API_URL}/api/auth/${type}`, {
-      ...fetchPostOptions,
-      body: JSON.stringify(values),
-    });
-    if (!res.ok) {
-      console.error('Error. Request: ', res);
-      throw new Error('Network response was not ok');
-    }
-    console.log('Request: ', res);
-    return res.json();
-  }
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<LoginAndSignUpForm>({
+    resolver: zodResolver(loginAndSignUpFormSchema),
     defaultValues: {
       username: '',
       password: '',
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const res = await loginOrSignUp(values);
-      addEvent(res.message);
-
-      if (res?.user) {
-        setUser(res.user);
-      }
-    } catch (error) {
-      addEvent('Error sending fetch request');
-      console.error(`AuthForm ${type} onSubmit error`, error);
-    }
+  async function onSubmit(values: LoginAndSignUpForm) {
+    await loginOrSignup(type, values);
   }
 
   return (
@@ -147,3 +106,31 @@ export default function LoginAndSignupForm({
     </Card>
   );
 }
+
+/*
+
+async function loginOrSignUp(
+  values: z.infer<typeof loginAndSignUpFormSchema>
+): Promise<ApiResponse<User>> {
+  const res = await fetch(`${API_URL}/api/auth/${type}`, {
+    ...fetchPostOptions,
+    body: JSON.stringify(values),
+  });
+  return await res.json();
+}
+
+async function onSubmit(values: z.infer<typeof loginAndSignUpFormSchema>) {
+  try {
+    const res = await loginOrSignUp(values);
+    addEvent(res.message);
+    if (res?.user) {
+      setUser(res.user);
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      addEvent('Error: ' + error.message);
+    }
+  }
+}
+  
+*/

@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   if (!user) return null;
 
   return (
@@ -43,7 +43,7 @@ export default function Profile() {
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => console.log('log out')}>
+                <DropdownMenuItem onClick={logout}>
                   <LogOutIcon />
                   <span>Log out</span>
                 </DropdownMenuItem>

@@ -6,6 +6,7 @@ import {
 } from '../utils/index.js';
 import { Session } from '../models/Session.js';
 import { STATUS } from '../config/status.js';
+import { cookiesOptions } from '../config/cookiesOptions.js';
 
 async function signup(req, res) {
   // Get username and password from Request
@@ -123,7 +124,7 @@ async function logOut(req, res) {
   // Get sessionId from req.user (passed through validateTokens middleware)
   const { sessionId } = req.user;
 
-  // Delete session from dataBase
+  // Find session and delete it from database
   if (sessionId) {
     try {
       await Session.findByIdAndDelete(sessionId);
@@ -138,13 +139,15 @@ async function logOut(req, res) {
   }
 
   // Clear cookies
-  res.clearCookie('accessToken').clearCookie('refreshToken');
+  res
+    .clearCookie('accessToken', cookiesOptions)
+    .clearCookie('refreshToken', cookiesOptions);
 
   // Send response
   return res.status(200).json({
     status: STATUS.SUCCESS,
     time: new Date().getTime(),
-    message: `User ${req.data.username} logged out`,
+    message: `User ${req.user.username} logged out`,
   });
 }
 
