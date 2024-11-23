@@ -29,7 +29,7 @@ export default function Sessions() {
     `${API_URL}/api/session/${user?.userId}`
   );
 
-  // This useEffect solves the folloing warning:
+  // This useEffect solves the following warning:
   // Cannot update a component (`EventProvider`) while rendering a different component (`Sessions`).
   useEffect(() => {
     let ignore = false;

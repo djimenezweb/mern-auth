@@ -17,9 +17,9 @@ async function getUserFromCookies(req, res) {
 async function getAllUsers(req, res) {
   try {
     // Find all users, exclude password and __v. Return new array with userId instead of _id.
-    const users = (await User.find().select('-password -__v').lean()).map(
-      ({ _id, ...rest }) => ({ ...rest, userId: _id.toString() })
-    );
+    const users = (
+      await User.find().select('-password -__v').lean().exec()
+    ).map(({ _id, ...rest }) => ({ ...rest, userId: _id.toString() }));
 
     // If no users found, return message
     if (!users) {

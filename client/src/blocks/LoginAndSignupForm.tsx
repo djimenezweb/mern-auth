@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +21,7 @@ import {
 import { Input } from '@/components/ui/input';
 import useAuth from '@/hooks/useAuth';
 import { LoginAndSignUpForm, loginAndSignUpFormSchema } from '@/types';
+import { Loader2 } from 'lucide-react';
 
 type LoginAndSignupFormProps = {
   type: 'login' | 'signup';
@@ -31,9 +33,11 @@ export default function LoginAndSignupForm({
   disabled,
 }: LoginAndSignupFormProps) {
   const { loginOrSignup } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginAndSignUpForm>({
     resolver: zodResolver(loginAndSignUpFormSchema),
+    disabled: disabled || isLoading,
     defaultValues: {
       username: '',
       password: '',
@@ -41,18 +45,31 @@ export default function LoginAndSignupForm({
   });
 
   async function onSubmit(values: LoginAndSignUpForm) {
-    await loginOrSignup(type, values);
+    setIsLoading(true);
+    try {
+      const success = await loginOrSignup(type, values);
+      if (success) {
+        form.reset();
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }
 
+  const variants = {
+    title: { login: 'Login', signup: 'Signup' },
+    description: {
+      login: 'Enter your username and password below to login',
+      signup: 'Enter your username and password below to create an account',
+    },
+    submit: { login: 'Login', signup: 'Signup' },
+  };
+
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
-        <CardTitle>{type === 'login' ? 'Login' : 'Signup'}</CardTitle>
-        <CardDescription>
-          {type === 'login'
-            ? 'Enter your username and password below to login'
-            : 'Enter your username and password below to create an account'}
-        </CardDescription>
+        <CardTitle>{variants.title[type]}</CardTitle>
+        <CardDescription>{variants.description[type]}</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -64,11 +81,7 @@ export default function LoginAndSignupForm({
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Username"
-                      disabled={disabled}
-                      {...field}
-                    />
+                    <Input placeholder="Username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -81,11 +94,7 @@ export default function LoginAndSignupForm({
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Password"
-                      disabled={disabled}
-                      {...field}
-                    />
+                    <Input placeholder="Password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -97,8 +106,15 @@ export default function LoginAndSignupForm({
               variant="default"
               className="w-full"
               type="submit"
-              disabled={disabled}>
-              {type === 'login' ? 'Login' : 'Signup'}
+              disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  <span>Please wait</span>
+                </>
+              ) : (
+                variants.submit[type]
+              )}
             </Button>
           </CardFooter>
         </form>
@@ -106,31 +122,3 @@ export default function LoginAndSignupForm({
     </Card>
   );
 }
-
-/*
-
-async function loginOrSignUp(
-  values: z.infer<typeof loginAndSignUpFormSchema>
-): Promise<ApiResponse<User>> {
-  const res = await fetch(`${API_URL}/api/auth/${type}`, {
-    ...fetchPostOptions,
-    body: JSON.stringify(values),
-  });
-  return await res.json();
-}
-
-async function onSubmit(values: z.infer<typeof loginAndSignUpFormSchema>) {
-  try {
-    const res = await loginOrSignUp(values);
-    addEvent(res.message);
-    if (res?.user) {
-      setUser(res.user);
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      addEvent('Error: ' + error.message);
-    }
-  }
-}
-  
-*/

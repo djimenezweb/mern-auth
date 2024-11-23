@@ -8,7 +8,7 @@ type AuthContext = {
   loginOrSignup: (
     type: 'login' | 'signup',
     values: LoginAndSignUpForm
-  ) => Promise<void>;
+  ) => Promise<boolean>;
 };
 
 export const AuthContext = createContext<AuthContext | null>(null);

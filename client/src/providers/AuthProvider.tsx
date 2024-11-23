@@ -13,7 +13,8 @@ export default function AuthProvider({
   const [user, setUser] = useState<User | null>(null);
   const { addEvent } = useEvent();
 
-  // Login or Signup function, used in <LoginAndSignupForm>
+  // Login or Signup function, used in <LoginAndSignupForm>.
+  // Returns true if request is successful (res.ok), returns false otherwise.
   const loginOrSignup = useCallback(
     async (type: 'login' | 'signup', values: LoginAndSignUpForm) => {
       try {
@@ -22,15 +23,19 @@ export default function AuthProvider({
           body: JSON.stringify(values),
         });
         const json = (await res.json()) as ApiResponse<User>;
-        addEvent(json.message);
+        addEvent(json.message, json.time);
         if (json?.user) {
           setUser(json.user);
         }
+        if (res.ok) {
+          return true;
+        }
       } catch (error) {
         if (error instanceof Error) {
-          addEvent('Error: ' + error.message);
+          addEvent(error.message);
         }
       }
+      return false;
     },
     []
   );
@@ -48,7 +53,7 @@ export default function AuthProvider({
       }
     } catch (err) {
       if (err instanceof Error) {
-        addEvent('Error: ' + err.message);
+        addEvent(err.message);
       }
     }
   }, []);
@@ -71,9 +76,8 @@ export default function AuthProvider({
           setUser(json.user);
         }
       } catch (error) {
-        console.error(error);
         if (!ignore) {
-          addEvent('Attempt to auto login failed');
+          addEvent('Please login to continue');
         }
       }
     }

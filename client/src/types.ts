@@ -20,6 +20,7 @@ export type Session = {
   userAgentOS: string;
   userAgentDevice: string;
   ip: string;
+  valid: boolean;
 };
 
 export type ApiResponse<Type = void> = {

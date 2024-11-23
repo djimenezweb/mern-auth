@@ -27,7 +27,7 @@ export async function validateTokens(req, res, next) {
     return res.status(401).json({
       status: STATUS.ERROR,
       time: new Date().getTime(),
-      message: 'No Refresh Token, please log in to continue',
+      message: 'No Refresh Token found. Please log in to continue',
     });
   }
 
@@ -38,13 +38,13 @@ export async function validateTokens(req, res, next) {
         return res.status(403).json({
           status: STATUS.ERROR,
           time: new Date().getTime(),
-          message: 'Invalid Refresh Token',
+          message: 'Invalid Refresh Token. Please log in to continue',
         });
       }
 
       // Look up session
       const { sessionId } = decoded;
-      const session = await Session.findById(sessionId);
+      const session = await Session.findById(sessionId).lean().exec();
 
       // If no session found or session is not valid
       if (!session || !session.valid) {
@@ -59,7 +59,7 @@ export async function validateTokens(req, res, next) {
 
       // If session is valid find user
       const userId = session.userId;
-      const user = await User.findById(userId);
+      const user = await User.findById(userId).lean().exec();
 
       // Refresh both tokens
       const newAccessToken = generateAccessToken(user, sessionId);
@@ -91,12 +91,6 @@ export async function validateTokens(req, res, next) {
           message: 'Invalid Access Token',
         });
       }
-      // decodedUser = { userId: '123', roles: ['user', 'admin'], sessionId: '123', iat: 123 }
-
-      // Remove iat
-      // if ('iat' in decodedUser) {
-      //  delete decodedUser.iat;
-      // }
 
       // Isolate iat
       const { iat, ...rest } = decodedUser;

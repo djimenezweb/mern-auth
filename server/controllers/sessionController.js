@@ -4,9 +4,19 @@ import { Session } from '../models/Session.js';
 async function getSessionsFromUserId(req, res) {
   const { userId } = req.params;
   try {
-    const sessions = await Session.find({ userId }).select(
-      'ip userAgent userAgentName userAgentOS userAgentDevice'
-    );
+    // First clean up expired sessions from user
+    const now = new Date().getTime();
+    const expiredSessions = await Session.deleteMany({
+      userId,
+      expires: { $lt: now },
+    });
+
+    // Then get remaining sessions from userId
+    const sessions = await Session.find({ userId })
+      .select('ip userAgent userAgentName userAgentOS userAgentDevice valid')
+      .lean()
+      .exec();
+
     return res.status(200).json({
       status: STATUS.SUCCESS,
       time: new Date().getTime(),
@@ -31,14 +41,10 @@ async function deleteSessionFromSessionId(req, res) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     await session.deleteOne();
-    // const sessions = await Session.find({ userId }).select(
-    //   'ip userAgent userAgentName userAgentOS userAgentDevice'
-    // );
     return res.status(200).json({
       status: STATUS.SUCCESS,
       time: new Date().getTime(),
       message: `Closed session from ${session.userAgentName} on ${session.userAgentOS} (${session.userAgentDevice})`,
-      // sessions,
     });
   } catch (error) {
     return res.status(500).json({

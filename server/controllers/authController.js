@@ -23,7 +23,7 @@ async function signup(req, res) {
 
   try {
     // Check if username already exists to prevent duplicates
-    const duplicate = await User.findOne({ username });
+    const duplicate = await User.findOne({ username }).lean().exec();
     if (duplicate) {
       return res.status(409).json({
         status: STATUS.ERROR,
@@ -36,7 +36,10 @@ async function signup(req, res) {
     const hashedPassword = await hashPassword(password);
 
     // Save username and hashed password to database
-    const user = await User.create({ username, password: hashedPassword });
+    const user = await User.create({
+      username,
+      password: hashedPassword,
+    });
 
     // Create new Session, generate Access and Refresh Tokens, and set Cookies
     await createSessionTokensAndSetCookies(user, req, res);
@@ -77,7 +80,7 @@ async function login(req, res) {
 
   try {
     // Find user in database
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).lean().exec();
     if (!user) {
       return res.status(409).json({
         status: STATUS.ERROR,
@@ -127,7 +130,7 @@ async function logOut(req, res) {
   // Find session and delete it from database
   if (sessionId) {
     try {
-      await Session.findByIdAndDelete(sessionId);
+      await Session.findByIdAndDelete(sessionId).exec();
     } catch (error) {
       console.error(error);
       return res.status(500).json({

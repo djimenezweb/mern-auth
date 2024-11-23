@@ -17,7 +17,7 @@ const RequireAuth = ({ children, role = 'user' }: RequireAuthProps) => {
 
   if (!user || !user.roles.includes(role))
     return (
-      <Card>
+      <Card className="h-full">
         <CardHeader>
           <CardTitle>
             <span className="capitalize">{role}s</span> only
