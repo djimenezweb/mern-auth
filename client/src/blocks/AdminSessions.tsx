@@ -46,6 +46,7 @@ export default function AdminSessions({
               <TableHead>Agent</TableHead>
               <TableHead>IP</TableHead>
               <TableHead>Valid</TableHead>
+              <TableHead>Expires</TableHead>
               <TableHead>Close</TableHead>
             </TableRow>
           </TableHeader>
@@ -55,15 +56,22 @@ export default function AdminSessions({
                 <TableCell className="capitalize">
                   {s.userAgentDevice || 'unknown'}
                 </TableCell>
-                <TableCell className="capitalize">
-                  {s.userAgentOS || 'unknown'}
-                </TableCell>
+                <TableCell>{s.userAgentOS || 'unknown'}</TableCell>
                 <TableCell className="capitalize">
                   {s.userAgentName || 'unknown'}
                 </TableCell>
                 <TableCell>{s.ip}</TableCell>
                 <TableCell>
-                  <Checkbox defaultChecked={s.valid} />
+                  <Checkbox defaultChecked={s.valid} className="mx-auto" />
+                </TableCell>
+                <TableCell>
+                  {new Date(s.expires).toLocaleString(undefined, {
+                    day: 'numeric',
+                    month: 'short',
+                    hourCycle: 'h24',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
                 </TableCell>
                 <TableCell>
                   <Button variant="destructive" size="sm" onClick={() => {}}>

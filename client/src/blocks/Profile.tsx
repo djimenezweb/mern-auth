@@ -25,9 +25,11 @@ export default function Profile() {
       <CardHeader>
         <div className="flex gap-4 items-center">
           <Avatar>
-            <AvatarFallback>{user.username[0]}</AvatarFallback>
+            <AvatarFallback className="text-primary-foreground font-semibold text-xl">
+              {user.username[0]}
+            </AvatarFallback>
           </Avatar>
-          <div className="flex-1">
+          <div className="flex-1 space-y-1">
             <CardTitle>{user.username}</CardTitle>
             <CardDescription className="space-x-2">
               {user.roles.map(r => (

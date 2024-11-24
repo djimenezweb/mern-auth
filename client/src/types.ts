@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import {
+  userAgentDeviceIcons,
+  userAgentNameIcons,
+  userAgentOSIcons,
+} from './lib/userAgentIcons';
 
 export type Event = {
   time: string;
@@ -16,9 +21,10 @@ export type User = {
 export type Session = {
   _id: string;
   userAgent: string;
-  userAgentName: string;
-  userAgentOS: string;
-  userAgentDevice: string;
+  userAgentName: keyof typeof userAgentNameIcons;
+  userAgentOS: keyof typeof userAgentOSIcons;
+  userAgentDevice: keyof typeof userAgentDeviceIcons;
+  expires: number;
   ip: string;
   valid: boolean;
 };

@@ -11,7 +11,6 @@ const cookiesOptions = {
 
 const accessTokenCookiesOptions = {
   ...cookiesOptions,
-  maxAge: accessTokenExpiration * 1000,
 };
 
 const refreshTokenCookiesOptions = {

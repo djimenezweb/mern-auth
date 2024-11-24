@@ -14,7 +14,7 @@ type DialogProps = {
   children: React.ReactNode;
   title: string;
   description: string;
-  action: () => void;
+  action: () => Promise<void>;
 };
 
 export function ConfirmDialog({

@@ -13,8 +13,20 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { fetchDeleteOptions } from '@/config/fetchOptions';
 import useEvent from '@/hooks/useEvent';
+import { RefreshCcw } from 'lucide-react';
+import {
+  userAgentDeviceIcons,
+  userAgentNameIcons,
+  userAgentOSIcons,
+} from '@/lib/userAgentIcons';
 
 export default function Sessions() {
   const { user } = useAuth();
@@ -63,9 +75,12 @@ export default function Sessions() {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="h-full">
+      <CardHeader className="flex flex-row justify-between items-center">
         <CardTitle>Sessions</CardTitle>
+        <Button variant="ghost" size="icon" onClick={refetchSessions}>
+          <RefreshCcw />
+        </Button>
       </CardHeader>
       <CardContent>
         {isLoading && <p>Loading</p>}
@@ -77,37 +92,59 @@ export default function Sessions() {
             <TableHeader>
               <TableRow>
                 <TableHead>Device</TableHead>
-                <TableHead>OS</TableHead>
-                <TableHead>Agent</TableHead>
                 <TableHead>IP</TableHead>
                 <TableHead>Close</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.sessions &&
-                data.sessions.length > 0 &&
-                data.sessions.map(s => (
-                  <TableRow key={s._id}>
-                    <TableCell className="capitalize">
-                      {s.userAgentDevice || 'unknown'}
-                    </TableCell>
-                    <TableCell className="capitalize">
-                      {s.userAgentOS || 'unknown'}
-                    </TableCell>
-                    <TableCell className="capitalize">
-                      {s.userAgentName || 'unknown'}
-                    </TableCell>
-                    <TableCell>{s.ip}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => closeSession(s._id)}>
-                        close
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+              <TooltipProvider>
+                {data.sessions &&
+                  data.sessions.length > 0 &&
+                  data.sessions.map(s => (
+                    <TableRow key={s._id}>
+                      <TableCell>
+                        <div className="h-full flex gap-3 items-center">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              {userAgentDeviceIcons[s.userAgentDevice] ||
+                                userAgentDeviceIcons.default}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="capitalize">{s.userAgentDevice}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              {userAgentOSIcons[s.userAgentOS] ||
+                                userAgentOSIcons.default}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{s.userAgentOS}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              {userAgentNameIcons[s.userAgentName] ||
+                                userAgentNameIcons.default}
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="capitalize">{s.userAgentName}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                      <TableCell>{s.ip}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => closeSession(s._id)}>
+                          close
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TooltipProvider>
             </TableBody>
           </Table>
         )}

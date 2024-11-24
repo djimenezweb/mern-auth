@@ -15,6 +15,15 @@ const fetchPostOptions: RequestInit = {
   credentials: 'include',
 };
 
+const fetchPutOptions: RequestInit = {
+  method: 'PUT',
+  headers: {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  },
+  credentials: 'include',
+};
+
 const fetchDeleteOptions: RequestInit = {
   method: 'DELETE',
   headers: {
@@ -24,4 +33,9 @@ const fetchDeleteOptions: RequestInit = {
   credentials: 'include',
 };
 
-export { fetchPostOptions, fetchGetOptions, fetchDeleteOptions };
+export {
+  fetchPostOptions,
+  fetchGetOptions,
+  fetchPutOptions,
+  fetchDeleteOptions,
+};

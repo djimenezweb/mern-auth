@@ -16,11 +16,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ApiResponse, User } from '@/types';
+import { ApiResponse, Role, User } from '@/types';
 import { useState } from 'react';
 import AdminSessions from './AdminSessions';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from './ConfirmDialog';
+import { fetchDeleteOptions, fetchPutOptions } from '@/config/fetchOptions';
+import useEvent from '@/hooks/useEvent';
+import { CheckedState } from '@radix-ui/react-checkbox';
+import { RefreshCcw } from 'lucide-react';
 
 export default function AdminDashboard() {
   const {
@@ -30,21 +34,74 @@ export default function AdminDashboard() {
     error,
     refetch: refetchUsers,
   } = useFetch<ApiResponse<User[]>>(`${API_URL}/api/users/`);
+  const { addEvent } = useEvent();
 
-  const [selectedUser, setSelectedUser] = useState({
+  const INITIAL_USER = {
     userId: '',
     username: '',
-  });
+  };
 
-  function deleteUser() {
-    console.log('Delete user clicked');
+  const [selectedUser, setSelectedUser] = useState(INITIAL_USER);
+
+  // Update roles function
+  async function handleRoles(
+    checked: CheckedState,
+    role: Role,
+    roles: Role[],
+    userId: string
+  ) {
+    let nextRoles;
+    if (checked) {
+      nextRoles = [...roles, role];
+    } else {
+      nextRoles = roles.filter(r => r !== role);
+    }
+    try {
+      const response = await fetch(`${API_URL}/api/users/${userId}`, {
+        ...fetchPutOptions,
+        body: JSON.stringify({ roles: nextRoles }),
+      });
+      const json = (await response.json()) as ApiResponse;
+      if (json.message) {
+        addEvent(json.message, json.time);
+      }
+      refetchUsers();
+    } catch (err) {
+      if (err instanceof Error) {
+        addEvent('Error: ' + err.message);
+      }
+    }
+  }
+
+  // Delete user function
+  async function deleteUser(id: string) {
+    try {
+      const response = await fetch(
+        `${API_URL}/api/users/${id}`,
+        fetchDeleteOptions
+      );
+      const json = (await response.json()) as ApiResponse;
+      if (json.message) {
+        addEvent(json.message, json.time);
+      }
+      refetchUsers();
+    } catch (err) {
+      if (err instanceof Error) {
+        addEvent('Error: ' + err.message);
+      }
+    } finally {
+      setSelectedUser(INITIAL_USER);
+    }
   }
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      <Card>
-        <CardHeader>
+      <Card onClick={() => setSelectedUser(INITIAL_USER)}>
+        <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle>Users</CardTitle>
+          <Button variant="ghost" size="icon" onClick={refetchUsers}>
+            <RefreshCcw />
+          </Button>
         </CardHeader>
         <CardContent>
           {isLoading && <p>Loading</p>}
@@ -56,9 +113,9 @@ export default function AdminDashboard() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Username</TableHead>
-                  <TableHead>user</TableHead>
-                  <TableHead>admin</TableHead>
-                  <TableHead>Delete</TableHead>
+                  <TableHead className="text-center">user</TableHead>
+                  <TableHead className="text-center">admin</TableHead>
+                  <TableHead className="text-center">Delete</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -67,31 +124,42 @@ export default function AdminDashboard() {
                   data.users.map(u => (
                     <TableRow
                       key={u.userId}
-                      onClick={() =>
+                      onClick={e => {
+                        e.stopPropagation();
                         setSelectedUser({
                           username: u.username,
                           userId: u.userId,
-                        })
-                      }
+                        });
+                      }}
                       data-state={
                         u.userId === selectedUser.userId ? 'selected' : ''
                       }>
                       <TableCell>{u.username}</TableCell>
                       <TableCell>
                         <Checkbox
+                          className="mx-auto"
                           disabled
                           defaultChecked={u.roles.includes('user')}
                         />
                       </TableCell>
                       <TableCell>
-                        <Checkbox defaultChecked={u.roles.includes('admin')} />
+                        <Checkbox
+                          onCheckedChange={checked =>
+                            handleRoles(checked, 'admin', u.roles, u.userId)
+                          }
+                          className="mx-auto"
+                          defaultChecked={u.roles.includes('admin')}
+                        />
                       </TableCell>
                       <TableCell>
                         <ConfirmDialog
                           title={`Delete user ${u.username}?`}
                           description="This action is irreversible"
-                          action={deleteUser}>
-                          <Button variant="destructive" size="sm">
+                          action={() => deleteUser(u.userId)}>
+                          <Button
+                            className="block mx-auto"
+                            variant="destructive"
+                            size="sm">
                             delete
                           </Button>
                         </ConfirmDialog>
@@ -110,6 +178,9 @@ export default function AdminDashboard() {
               ? 'Sessions'
               : `${selectedUser.username}'s sessions`}
           </CardTitle>
+          {selectedUser.userId === '' && (
+            <CardDescription>Select a user</CardDescription>
+          )}
         </CardHeader>
         <CardContent>
           {selectedUser.userId ? (

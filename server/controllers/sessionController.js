@@ -4,23 +4,24 @@ import { Session } from '../models/Session.js';
 async function getSessionsFromUserId(req, res) {
   const { userId } = req.params;
   try {
-    // First clean up expired sessions from user
+    // Clean up possibly expired sessions from user
     const now = new Date().getTime();
     const expiredSessions = await Session.deleteMany({
       userId,
       expires: { $lt: now },
     });
 
-    // Then get remaining sessions from userId
+    // Get remaining sessions from userId
     const sessions = await Session.find({ userId })
-      .select('ip userAgent userAgentName userAgentOS userAgentDevice valid')
+      .select('-userId -updatedAt -createdAt -__v')
       .lean()
       .exec();
 
+    // Return response
     return res.status(200).json({
       status: STATUS.SUCCESS,
       time: new Date().getTime(),
-      message: 'Retrieved sessions successfully',
+      message: `Retrieved sessions successfully\n${expiredSessions.deletedCount} expired sessions removed`,
       sessions,
     });
   } catch (error) {
@@ -35,16 +36,32 @@ async function getSessionsFromUserId(req, res) {
 async function deleteSessionFromSessionId(req, res) {
   const { sessionId } = req.params;
   const { userId } = req.user;
+  const isAdmin = req.user.roles.includes('admin');
+
   try {
-    const session = await Session.findById(sessionId).exec();
-    if (!session.userId === userId) {
+    // Find session
+    const sessionToDelete = await Session.findById(sessionId).exec();
+
+    // Grant access to admins only or session owners
+    if (!isAdmin || !sessionToDelete.userId === userId) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
-    await session.deleteOne();
+
+    // Delete the session
+    await sessionToDelete.deleteOne();
+
+    // If deleting current session, clear cookies
+    if (sessionId === req.user.sessionId) {
+      res
+        .clearCookie('accessToken', cookiesOptions)
+        .clearCookie('refreshToken', cookiesOptions);
+    }
+
+    // Return response
     return res.status(200).json({
       status: STATUS.SUCCESS,
       time: new Date().getTime(),
-      message: `Closed session from ${session.userAgentName} on ${session.userAgentOS} (${session.userAgentDevice})`,
+      message: `Closed session from ${sessionToDelete.userAgentName} on ${sessionToDelete.userAgentOS} (${sessionToDelete.userAgentDevice})`,
     });
   } catch (error) {
     return res.status(500).json({

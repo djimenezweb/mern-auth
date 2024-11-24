@@ -27,7 +27,7 @@ export default function Events() {
                     <TableCell className="w-[8ch] align-top pl-0 opacity-65">
                       {e.time}
                     </TableCell>
-                    <TableCell className="align-top pr-0">
+                    <TableCell className="align-top pr-0 whitespace-pre-line">
                       {e.message}
                     </TableCell>
                   </TableRow>

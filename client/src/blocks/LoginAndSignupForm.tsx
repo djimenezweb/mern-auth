@@ -106,7 +106,7 @@ export default function LoginAndSignupForm({
               variant="default"
               className="w-full"
               type="submit"
-              disabled={isLoading}>
+              disabled={isLoading || disabled}>
               {isLoading ? (
                 <>
                   <Loader2 className="animate-spin" />

@@ -1,4 +1,5 @@
 import { User } from '../models/User.js';
+import { Session } from '../models/Session.js';
 import { STATUS } from '../config/status.js';
 
 async function getUserFromCookies(req, res) {
@@ -47,4 +48,48 @@ async function getAllUsers(req, res) {
   }
 }
 
-export { getUserFromCookies, getAllUsers };
+async function updateUser(req, res) {
+  const { userId } = req.params;
+
+  try {
+    // Find and update user. {new: true} to return user after update
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { ...req.body },
+      { new: true }
+    );
+
+    // Return response
+    return res.status(200).json({
+      message: `Updated roles from user ${updatedUser.username}:\n${updatedUser.roles}`,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'An error ocurred' });
+  }
+}
+
+async function deleteUser(req, res) {
+  const { userId } = req.params;
+
+  try {
+    // Find and delete user
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    // If user not found, return message
+    if (!deletedUser) {
+      return res.status(500).json({ message: 'Could not delete user' });
+    }
+
+    // Find and delete user's sessions
+    const deletedSessions = await Session.deleteMany({ userId });
+
+    // Return response
+    return res.status(200).json({
+      message: `User ${deletedUser.username} deleted successfully\n${deletedSessions.deletedCount} sessions deleted successfully`,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'An error ocurred' });
+  }
+}
+
+export { getUserFromCookies, getAllUsers, updateUser, deleteUser };
