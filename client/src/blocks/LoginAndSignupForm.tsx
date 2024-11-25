@@ -47,6 +47,7 @@ export default function LoginAndSignupForm({
   async function onSubmit(values: LoginAndSignUpForm) {
     setIsLoading(true);
     try {
+      // loginOrSignup function returns a boolean
       const success = await loginOrSignup(type, values);
       if (success) {
         form.reset();
@@ -66,7 +67,7 @@ export default function LoginAndSignupForm({
   };
 
   return (
-    <Card className="h-full">
+    <Card className={`h-full ${disabled ? 'text-muted-foreground' : ''}`}>
       <CardHeader>
         <CardTitle>{variants.title[type]}</CardTitle>
         <CardDescription>{variants.description[type]}</CardDescription>
@@ -79,7 +80,7 @@ export default function LoginAndSignupForm({
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  {/* <FormLabel>Username</FormLabel> */}
                   <FormControl>
                     <Input placeholder="Username" {...field} />
                   </FormControl>
@@ -92,7 +93,7 @@ export default function LoginAndSignupForm({
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  {/* <FormLabel>Password</FormLabel> */}
                   <FormControl>
                     <Input placeholder="Password" {...field} />
                   </FormControl>

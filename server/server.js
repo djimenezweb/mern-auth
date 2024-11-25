@@ -28,8 +28,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/session', sessionRoutes);
 
-app.get('/', (req, res) => {
-  res.send('Server root');
+// 404
+app.use((req, res) => {
+  res.status(404).json({ message: 'Not found' });
 });
 
 // Start server

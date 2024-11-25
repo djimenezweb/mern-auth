@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { useState } from 'react';
 
@@ -40,7 +41,12 @@ export function ConfirmDialog({
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="flex gap-2 justify-end">
+            <DialogClose asChild>
+              <Button type="button" variant="secondary">
+                Cancel
+              </Button>
+            </DialogClose>
             <Button type="submit">Confirm</Button>
           </form>
         </DialogFooter>

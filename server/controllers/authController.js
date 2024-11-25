@@ -10,7 +10,8 @@ import { cookiesOptions } from '../config/cookiesOptions.js';
 
 async function signup(req, res) {
   // Get username and password from Request
-  const { username, password } = req.body;
+  const { password } = req.body;
+  const username = req.body.username.trim();
 
   // Send error if empty fields
   if (!username || !password) {
@@ -67,7 +68,8 @@ async function signup(req, res) {
 
 async function login(req, res) {
   // Get username and password from Request
-  const { username, password } = req.body;
+  const { password } = req.body;
+  const username = req.body.username.trim();
 
   // Send error if empty fields
   if (!username || !password) {

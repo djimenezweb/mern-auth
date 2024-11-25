@@ -46,10 +46,19 @@ export async function validateTokens(req, res, next) {
       const { sessionId } = decoded;
       const session = await Session.findById(sessionId).lean().exec();
 
-      // If no session found or session is not valid
+      // If no session found
       if (!session || !session.valid) {
         // Clear cookies and send 403 error
         res.clearCookie('accessToken').clearCookie('refreshToken');
+        return res.status(403).json({
+          status: STATUS.ERROR,
+          time: new Date().getTime(),
+          message: 'Session not found. Please log in to continue',
+        });
+      }
+
+      // If session is not valid
+      if (!session.valid) {
         return res.status(403).json({
           status: STATUS.ERROR,
           time: new Date().getTime(),

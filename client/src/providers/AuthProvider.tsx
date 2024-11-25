@@ -18,16 +18,16 @@ export default function AuthProvider({
   const loginOrSignup = useCallback(
     async (type: 'login' | 'signup', values: LoginAndSignUpForm) => {
       try {
-        const res = await fetch(`${API_URL}/api/auth/${type}`, {
+        const response = await fetch(`${API_URL}/api/auth/${type}`, {
           ...fetchPostOptions,
           body: JSON.stringify(values),
         });
-        const json = (await res.json()) as ApiResponse<User>;
-        addEvent(json.message, json.time);
-        if (json?.user) {
-          setUser(json.user);
+        const data = (await response.json()) as ApiResponse<User>;
+        addEvent(data.message, data.time);
+        if (data?.user) {
+          setUser(data.user);
         }
-        if (res.ok) {
+        if (response.ok) {
           return true;
         }
       } catch (error) {
@@ -43,13 +43,13 @@ export default function AuthProvider({
   // Logout function, used in <Profile>
   const logout = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/logout`, {
+      const response = await fetch(`${API_URL}/api/auth/logout`, {
         ...fetchGetOptions,
       });
-      if (res.ok) {
-        const json = (await res.json()) as ApiResponse;
+      if (response.ok) {
+        const data = (await response.json()) as ApiResponse;
         setUser(null);
-        addEvent(json.message, json.time);
+        addEvent(data.message, data.time);
       }
     } catch (err) {
       if (err instanceof Error) {
@@ -68,12 +68,12 @@ export default function AuthProvider({
           `${API_URL}/api/users/me`,
           fetchGetOptions
         );
-        const json = (await response.json()) as ApiResponse<User>;
-        if (!ignore && json.message) {
-          addEvent(json.message, json.time);
+        const data = (await response.json()) as ApiResponse<User>;
+        if (!ignore && data.message) {
+          addEvent(data.message, data.time);
         }
-        if (!ignore && json.user) {
-          setUser(json.user);
+        if (!ignore && data.user) {
+          setUser(data.user);
         }
       } catch (error) {
         if (!ignore) {

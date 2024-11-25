@@ -50,7 +50,7 @@ export default function AdminDashboard() {
     roles: Role[],
     userId: string
   ) {
-    let nextRoles;
+    let nextRoles: Role[];
     if (checked) {
       nextRoles = [...roles, role];
     } else {
@@ -61,9 +61,9 @@ export default function AdminDashboard() {
         ...fetchPutOptions,
         body: JSON.stringify({ roles: nextRoles }),
       });
-      const json = (await response.json()) as ApiResponse;
-      if (json.message) {
-        addEvent(json.message, json.time);
+      const data = (await response.json()) as ApiResponse;
+      if (data.message) {
+        addEvent(data.message, data.time);
       }
       refetchUsers();
     } catch (err) {
@@ -80,9 +80,9 @@ export default function AdminDashboard() {
         `${API_URL}/api/users/${id}`,
         fetchDeleteOptions
       );
-      const json = (await response.json()) as ApiResponse;
-      if (json.message) {
-        addEvent(json.message, json.time);
+      const data = (await response.json()) as ApiResponse;
+      if (data.message) {
+        addEvent(data.message, data.time);
       }
       refetchUsers();
     } catch (err) {
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-2">
       <Card onClick={() => setSelectedUser(INITIAL_USER)}>
         <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle>Users</CardTitle>

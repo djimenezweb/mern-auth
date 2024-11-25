@@ -11,6 +11,10 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { fetchDeleteOptions, fetchPutOptions } from '@/config/fetchOptions';
+import useEvent from '@/hooks/useEvent';
+import { CheckedState } from '@radix-ui/react-checkbox';
+import useAuth from '@/hooks/useAuth';
 
 export default function AdminSessions({
   selectedUserId,
@@ -26,6 +30,49 @@ export default function AdminSessions({
   } = useFetch<ApiResponse<Session[]>>(
     `${API_URL}/api/session/${selectedUserId}`
   );
+  const { addEvent } = useEvent();
+  const { setUser } = useAuth();
+
+  // Close session function: deletes session and fetch sessions again
+  async function closeSession(sessionId: string) {
+    try {
+      const response = await fetch(
+        `${API_URL}/api/session/${sessionId}`,
+        fetchDeleteOptions
+      );
+      const json = (await response.json()) as ApiResponse;
+      if (json.message) {
+        addEvent(json.message, json.time);
+      }
+      if (json.logout) {
+        setUser(null);
+      }
+      refetchSessions();
+    } catch (err) {
+      if (err instanceof Error) {
+        addEvent(err.message);
+      }
+    }
+  }
+
+  // Update session validity
+  async function handleSession(checked: CheckedState, sessionId: string) {
+    try {
+      const response = await fetch(`${API_URL}/api/session/${sessionId}`, {
+        ...fetchPutOptions,
+        body: JSON.stringify({ valid: checked }),
+      });
+      const data = (await response.json()) as ApiResponse;
+      if (data.message) {
+        addEvent(data.message, data.time);
+      }
+      refetchSessions();
+    } catch (err) {
+      if (err instanceof Error) {
+        addEvent('Error: ' + err.message);
+      }
+    }
+  }
 
   return (
     <>
@@ -62,7 +109,11 @@ export default function AdminSessions({
                 </TableCell>
                 <TableCell>{s.ip}</TableCell>
                 <TableCell>
-                  <Checkbox defaultChecked={s.valid} className="mx-auto" />
+                  <Checkbox
+                    defaultChecked={s.valid}
+                    className="mx-auto"
+                    onCheckedChange={checked => handleSession(checked, s._id)}
+                  />
                 </TableCell>
                 <TableCell>
                   {new Date(s.expires).toLocaleString(undefined, {
@@ -74,7 +125,12 @@ export default function AdminSessions({
                   })}
                 </TableCell>
                 <TableCell>
-                  <Button variant="destructive" size="sm" onClick={() => {}}>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => {
+                      closeSession(s._id);
+                    }}>
                     close
                   </Button>
                 </TableCell>

@@ -29,7 +29,7 @@ import {
 } from '@/lib/userAgentIcons';
 
 export default function Sessions() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const { addEvent } = useEvent();
   const {
     data,
@@ -66,10 +66,13 @@ export default function Sessions() {
       if (json.message) {
         addEvent(json.message, json.time);
       }
+      if (json.logout) {
+        setUser(null);
+      }
       refetchSessions();
     } catch (err) {
       if (err instanceof Error) {
-        addEvent('Error: ' + err.message);
+        addEvent(err.message);
       }
     }
   }
@@ -77,7 +80,7 @@ export default function Sessions() {
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row justify-between items-center">
-        <CardTitle>Sessions</CardTitle>
+        <CardTitle>My sessions</CardTitle>
         <Button variant="ghost" size="icon" onClick={refetchSessions}>
           <RefreshCcw />
         </Button>

@@ -33,6 +33,7 @@ export type ApiResponse<Type = void> = {
   status: 'success' | 'error';
   time: number;
   message: string;
+  logout?: boolean;
   user?: Type extends User ? User : never;
   users?: Type extends User[] ? User[] : never;
   session?: Type extends Session ? Session : never;

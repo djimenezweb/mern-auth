@@ -10,6 +10,7 @@ export default function Events() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Scroll to bottom when events change
     if (!ref.current) return;
     ref.current.scrollIntoView(false);
   }, [events]);

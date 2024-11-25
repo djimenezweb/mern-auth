@@ -1,75 +1,57 @@
 # MERN Auth
 
-## 🚧 Work in progress! 🚧
+Basic custom username/password auth system.
 
-Basic auth system with role- and session-based authorization.
+Live demo: (to do)
 
-## Back-End
+- Session based
+- Role authorization (user, admin)
+- Authenticated users can log in and see their own open sessions.
+- Admins can delete users, invalidate sessions and close other user's sessions.
 
-- Express
+[![Screen capture](./client/public/screenshot.png)](https://to.do)
+
+## Back End
+
+- Node.js + Express
 - Refresh and Access Tokens (JWT)
 - Hashed passwords (bcrypt)
 - HttpOnly Cookies (cookie-parser)
 - MongoDB & Mongoose
+- Custom middleware
+- Protected endpoints
+- Auto delete expired sessions from database
 
-## Front-End
+## Front End
 
 - Vite + React + TypeScript
 - Shadcn/ui
 - Tailwind CSS
+- Icons: [Lucide](https://lucide.dev/) + [react-icons](https://react-icons.github.io/react-icons/)
+- Fonts: [Jost](https://indestructibletype.com/Jost.html) + [JetBrainsMono](https://www.jetbrains.com/lp/mono/)
 
-## Sample code
+## Usage
 
-```javascript
-async function signup(req, res) {
-  // Get username and password from Request
-  const { username, password } = req.body;
+- Create a MongoDB database and copy your URI
+- Create new `.env` files following the `.env.example` files in both `client` and `server` folders
 
-  // Send error if empty fields
-  if (!username || !password) {
-    return res
-      .status(409)
-      .json({ message: 'Username and password are required' });
-  }
+### Install server dependencies and run:
 
-  try {
-    // Check if username already exists to prevent duplicates
-    const duplicate = await User.findOne({ username });
-    if (duplicate) {
-      return res.status(409).json({ message: 'Username already exists' });
-    }
-
-    // Hash password
-    const hashedPassword = await hashPassword(password);
-
-    // Save username and hashed password to database
-    const user = await User.create({ username, password: hashedPassword });
-    const userId = user._id.toString();
-
-    // Create new session and save it to database
-    const session = await Session.create({
-      userId,
-      valid: true,
-      userAgent: req.headers['user-agent'],
-      ip: req.ip,
-      updatedAt: new Date(),
-      createdAt: new Date(),
-    });
-    const sessionId = session._id.toString();
-
-    // Generate Access and Refresh Tokens
-    const accessToken = generateAccessToken(userId, sessionId);
-    const refreshToken = generateRefreshToken(sessionId);
-
-    // Send Cookies
-    res.cookie('accessToken', accessToken, cookiesOptions);
-    res.cookie('refreshToken', refreshToken, cookiesOptions);
-
-    // Send Response
-    return res.status(201).json({ message: 'User created' });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'An error ocurred' });
-  }
-}
+```bash
+cd server
+npm install
+npm run dev
 ```
+
+### Install client dependencies, run and build:
+
+```bash
+cd client
+npm install
+npm run dev
+npm run build
+```
+
+## License
+
+Licensed under the MIT License. Check the [LICENSE](./LICENSE.md) file for details.

@@ -52,7 +52,7 @@ async function updateUser(req, res) {
   const { userId } = req.params;
 
   try {
-    // Find and update user. {new: true} to return user after update
+    // Find and update user. {new: true} to return updated user after update
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { ...req.body },
@@ -70,6 +70,11 @@ async function updateUser(req, res) {
 
 async function deleteUser(req, res) {
   const { userId } = req.params;
+
+  // You can't delete yourself
+  if (req.user.userId === userId) {
+    return res.status(403).json({ message: "You can't delete yourself!" });
+  }
 
   try {
     // Find and delete user

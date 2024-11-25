@@ -4,8 +4,8 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx,js,jsx}'],
   theme: {
     fontFamily: {
-      sans: ['Geist', 'ui-sans-serif', 'system-ui'],
-      serif: ['ui-serif'],
+      sans: ['Jost', 'sans-serif'],
+      serif: ['ui-serif', 'serif'],
       mono: ['JetBrains Mono', 'monospace', 'ui-monospace'],
     },
     extend: {
