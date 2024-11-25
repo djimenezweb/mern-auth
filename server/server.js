@@ -8,6 +8,7 @@ import { corsOptions } from './config/corsOptions.js';
 import cookieParser from 'cookie-parser';
 
 const app = express();
+app.set('trust proxy', true);
 
 if (typeof process.env.PORT === 'undefined') {
   throw new Error('Environment variable PORT is undefined');
