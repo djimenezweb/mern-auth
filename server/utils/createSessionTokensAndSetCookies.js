@@ -9,12 +9,6 @@ import {
 } from './index.js';
 
 export async function createSessionTokensAndSetCookies(user, req, res) {
-  console.log('ip', req.ip);
-  console.log('ips', req.ips);
-  console.log('connection - remoteAdress', req.connection.remoteAddress);
-  console.log('socket - remoteAdress', req.socket.remoteAddress);
-  console.log('x-forwarded-for', req.headers['x-forwarded-for']);
-  // const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
   // Create new session
   const sessionId = await createSession(
     user._id.toString(),

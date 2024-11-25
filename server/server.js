@@ -8,6 +8,7 @@ import { corsOptions } from './config/corsOptions.js';
 import cookieParser from 'cookie-parser';
 
 const app = express();
+// Added to get real IP from client (see https://stackabuse.com/bytes/how-to-get-a-users-ip-address-in-express-js/)
 app.set('trust proxy', true);
 
 if (typeof process.env.PORT === 'undefined') {
