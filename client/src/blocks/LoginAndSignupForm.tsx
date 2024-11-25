@@ -7,7 +7,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import {
@@ -80,7 +79,6 @@ export default function LoginAndSignupForm({
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  {/* <FormLabel>Username</FormLabel> */}
                   <FormControl>
                     <Input placeholder="Username" {...field} />
                   </FormControl>
@@ -93,7 +91,6 @@ export default function LoginAndSignupForm({
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  {/* <FormLabel>Password</FormLabel> */}
                   <FormControl>
                     <Input placeholder="Password" {...field} />
                   </FormControl>
