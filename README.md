@@ -2,14 +2,14 @@
 
 Basic custom username/password auth system.
 
-Live demo: (to do)
+Live demo: https://mern-auth-o1gw.onrender.com
 
 - Session based
 - Role authorization (user, admin)
 - Authenticated users can log in and see their own open sessions.
 - Admins can delete users, invalidate sessions and close other user's sessions.
 
-[![Screen capture](./client/public/screenshot.png)](https://to.do)
+[![Screen capture](./client/public/screenshot.png)](https://mern-auth-o1gw.onrender.com)
 
 ## Back End
 
@@ -43,13 +43,12 @@ npm install
 npm run dev
 ```
 
-### Install client dependencies, run and build:
+### Install client dependencies and run:
 
 ```bash
 cd client
 npm install
 npm run dev
-npm run build
 ```
 
 ## License
