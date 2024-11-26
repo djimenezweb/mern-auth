@@ -27,7 +27,7 @@ export async function validateTokens(req, res, next) {
     return res.status(401).json({
       status: STATUS.ERROR,
       time: new Date().getTime(),
-      message: 'No Refresh Token found. Please log in to continue',
+      message: 'No Refresh Token found\nPlease log in to continue',
     });
   }
 
@@ -38,7 +38,7 @@ export async function validateTokens(req, res, next) {
         return res.status(403).json({
           status: STATUS.ERROR,
           time: new Date().getTime(),
-          message: 'Invalid Refresh Token. Please log in to continue',
+          message: 'Invalid Refresh Token\nPlease log in to continue',
         });
       }
 
@@ -53,7 +53,7 @@ export async function validateTokens(req, res, next) {
         return res.status(403).json({
           status: STATUS.ERROR,
           time: new Date().getTime(),
-          message: 'Session not found. Please log in to continue',
+          message: 'Session not found\nPlease log in to continue',
         });
       }
 
