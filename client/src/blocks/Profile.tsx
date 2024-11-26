@@ -25,7 +25,7 @@ export default function Profile() {
       <CardHeader>
         <div className="flex gap-4 items-center">
           <Avatar>
-            <AvatarFallback className="text-primary-foreground font-semibold text-xl capitalize">
+            <AvatarFallback className="text-primary-foreground bg-primary font-semibold text-xl capitalize">
               {user.username[0]}
             </AvatarFallback>
           </Avatar>

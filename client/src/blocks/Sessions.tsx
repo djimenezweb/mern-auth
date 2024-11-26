@@ -70,7 +70,7 @@ export default function Sessions() {
 
   return (
     <Card className="h-full">
-      <CardHeader className="flex flex-row justify-between items-center">
+      <CardHeader className="space-y-0 flex flex-row justify-between items-center">
         <CardTitle>My sessions</CardTitle>
         <Button variant="ghost" size="icon" onClick={refetchSessions}>
           <RefreshCcw />

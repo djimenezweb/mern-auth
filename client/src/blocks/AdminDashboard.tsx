@@ -97,7 +97,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-2 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-2">
       <Card onClick={() => setSelectedUser(INITIAL_USER)}>
-        <CardHeader className="flex flex-row justify-between items-center">
+        <CardHeader className="space-y-0 flex flex-row justify-between items-center">
           <CardTitle>Users</CardTitle>
           <Button variant="ghost" size="icon" onClick={refetchUsers}>
             <RefreshCcw />
