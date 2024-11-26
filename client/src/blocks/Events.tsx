@@ -21,9 +21,7 @@ export default function Events() {
     <Card className="dark bg-black">
       <ScrollArea className="w-full h-full">
         <CardContent ref={ref} className="pt-4 font-mono font-light">
-          {attemptingFirstLogin && (
-            <EventsLoading delay={attemptingFirstLogin ? 3000 : null} />
-          )}
+          {attemptingFirstLogin && <EventsLoading />}
 
           <Table>
             <TableBody>
