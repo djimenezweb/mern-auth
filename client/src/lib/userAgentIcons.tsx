@@ -27,7 +27,7 @@ const userAgentDeviceIcons = {
   phone: <Smartphone />,
   desktop: <Monitor />,
   bot: <Bot />,
-  default: <MonitorSmartphone />,
+  unknown: <MonitorSmartphone />,
 };
 
 const userAgentOSIcons = {
@@ -43,7 +43,7 @@ const userAgentOSIcons = {
   Linux: <PiLinuxLogo size="1.5rem" />,
   Googlebot: <Bot />,
   Android: <FaAndroid size="1.5rem" />,
-  default: <Cpu />,
+  unknown: <Cpu />,
 };
 
 const userAgentNameIcons = {
@@ -57,7 +57,7 @@ const userAgentNameIcons = {
   msie: <Globe />,
   curl: <Globe />,
   maxthon: <Globe />,
-  default: <Globe />,
+  unknown: <Globe />,
 };
 
 export { userAgentDeviceIcons, userAgentOSIcons, userAgentNameIcons };

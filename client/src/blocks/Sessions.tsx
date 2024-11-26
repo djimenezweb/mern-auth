@@ -13,20 +13,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { fetchDeleteOptions } from '@/config/fetchOptions';
 import useEvent from '@/hooks/useEvent';
 import { RefreshCcw } from 'lucide-react';
-import {
-  userAgentDeviceIcons,
-  userAgentNameIcons,
-  userAgentOSIcons,
-} from '@/lib/userAgentIcons';
+import SessionAgentIcons from './SessionAgentIcons';
 
 export default function Sessions() {
   const { user, setUser } = useAuth();
@@ -106,35 +97,11 @@ export default function Sessions() {
                   data.sessions.map(s => (
                     <TableRow key={s._id}>
                       <TableCell>
-                        <div className="h-full flex gap-3 items-center">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              {userAgentDeviceIcons[s.userAgentDevice] ||
-                                userAgentDeviceIcons.default}
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="capitalize">{s.userAgentDevice}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              {userAgentOSIcons[s.userAgentOS] ||
-                                userAgentOSIcons.default}
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{s.userAgentOS}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              {userAgentNameIcons[s.userAgentName] ||
-                                userAgentNameIcons.default}
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="capitalize">{s.userAgentName}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
+                        <SessionAgentIcons
+                          device={s.userAgentDevice}
+                          os={s.userAgentOS}
+                          browser={s.userAgentName}
+                        />
                       </TableCell>
                       <TableCell>{s.ip}</TableCell>
                       <TableCell>
