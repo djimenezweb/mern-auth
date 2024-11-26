@@ -11,6 +11,7 @@ export default function AuthProvider({
   children: React.ReactNode;
 }) {
   const [user, setUser] = useState<User | null>(null);
+  const [attemptingFirstLogin, setAttemptingFirstLogin] = useState(false);
   const { addEvent } = useEvent();
 
   // Login or Signup function, used in <LoginAndSignupForm>.
@@ -62,8 +63,11 @@ export default function AuthProvider({
   useEffect(() => {
     let ignore = false;
 
-    async function attempLogin() {
+    async function attemptLogin() {
       try {
+        if (!ignore) {
+          setAttemptingFirstLogin(true);
+        }
         const response = await fetch(
           `${API_URL}/api/users/me`,
           fetchGetOptions
@@ -79,10 +83,12 @@ export default function AuthProvider({
         if (!ignore) {
           addEvent('Please login to continue');
         }
+      } finally {
+        setAttemptingFirstLogin(false);
       }
     }
 
-    attempLogin();
+    attemptLogin();
 
     return () => {
       ignore = true;
@@ -90,8 +96,8 @@ export default function AuthProvider({
   }, [addEvent]);
 
   const value = useMemo(() => {
-    return { user, setUser, logout, loginOrSignup };
-  }, [user]);
+    return { user, attemptingFirstLogin, setUser, logout, loginOrSignup };
+  }, [user, attemptingFirstLogin]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

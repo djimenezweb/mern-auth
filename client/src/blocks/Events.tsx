@@ -3,11 +3,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import useEvent from '@/hooks/useEvent';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useEffect, useRef } from 'react';
+import EventsLoading from './EventsLoading';
+import useAuth from '@/hooks/useAuth';
 
 export default function Events() {
   const { events } = useEvent();
-
   const ref = useRef<HTMLDivElement>(null);
+  const { attemptingFirstLogin } = useAuth();
 
   useEffect(() => {
     // Scroll to bottom when events change
@@ -19,6 +21,10 @@ export default function Events() {
     <Card className="dark bg-black">
       <ScrollArea className="w-full h-full">
         <CardContent ref={ref} className="pt-4 font-mono font-light">
+          {attemptingFirstLogin && (
+            <EventsLoading delay={attemptingFirstLogin ? 3000 : null} />
+          )}
+
           <Table>
             <TableBody>
               {events &&

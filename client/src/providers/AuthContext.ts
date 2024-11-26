@@ -3,6 +3,7 @@ import { createContext } from 'react';
 
 type AuthContext = {
   user: User | null;
+  attemptingFirstLogin: boolean;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   logout: () => Promise<void>;
   loginOrSignup: (
