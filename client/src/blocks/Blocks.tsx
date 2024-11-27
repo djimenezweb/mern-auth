@@ -10,13 +10,16 @@ export default function Blocks() {
     <main className="p-4 space-y-2 sm:space-y-0 mx-auto block sm:grid sm:grid-cols-3 sm:grid-rows-[24rem_auto] max-w-7xl sm:gap-2">
       <Events />
 
-      <div className={`${!user ? 'hidden sm:flex' : ''} flex flex-col gap-2`}>
+      <div
+        className={`${
+          !user ? 'hidden sm:flex' : ''
+        } max-h-full flex flex-col gap-2`}>
         <div className="h-auto">
           <RequireAuth>
             <Profile />
           </RequireAuth>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 overflow-hidden">
           <RequireAuth>
             <Sessions />
           </RequireAuth>

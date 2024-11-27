@@ -18,6 +18,7 @@ import { fetchDeleteOptions } from '@/config/fetchOptions';
 import useEvent from '@/hooks/useEvent';
 import { RefreshCcw } from 'lucide-react';
 import SessionAgentIcons from './SessionAgentIcons';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function Sessions() {
   const { user, setUser } = useAuth();
@@ -69,56 +70,60 @@ export default function Sessions() {
   }
 
   return (
-    <Card className="h-full">
+    <Card className="h-full flex flex-col">
       <CardHeader className="space-y-0 flex flex-row justify-between items-center">
         <CardTitle>My sessions</CardTitle>
         <Button variant="ghost" size="icon" onClick={refetchSessions}>
           <RefreshCcw />
         </Button>
       </CardHeader>
-      <CardContent>
-        {isLoading && <p>Loading</p>}
+      <div className="flex-1 overflow-hidden">
+        <CardContent className="h-full max-h-full">
+          {isLoading && <p>Loading</p>}
 
-        {isError && <p>Error: {error}</p>}
+          {isError && <p>Error: {error}</p>}
 
-        {data && (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Device</TableHead>
-                <TableHead>IP</TableHead>
-                <TableHead>Close</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TooltipProvider>
-                {data.sessions &&
-                  data.sessions.length > 0 &&
-                  data.sessions.map(s => (
-                    <TableRow key={s._id}>
-                      <TableCell>
-                        <SessionAgentIcons
-                          device={s.userAgentDevice}
-                          os={s.userAgentOS}
-                          browser={s.userAgentName}
-                        />
-                      </TableCell>
-                      <TableCell>{s.ip}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => closeSession(s._id)}>
-                          close
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TooltipProvider>
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
+          {data && (
+            <ScrollArea className="h-full w-full">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Device</TableHead>
+                    <TableHead>IP</TableHead>
+                    <TableHead>Close</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TooltipProvider>
+                    {data.sessions &&
+                      data.sessions.length > 0 &&
+                      data.sessions.map(s => (
+                        <TableRow key={s._id}>
+                          <TableCell>
+                            <SessionAgentIcons
+                              device={s.userAgentDevice}
+                              os={s.userAgentOS}
+                              browser={s.userAgentName}
+                            />
+                          </TableCell>
+                          <TableCell>{s.ip}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => closeSession(s._id)}>
+                              close
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TooltipProvider>
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          )}
+        </CardContent>
+      </div>
     </Card>
   );
 }
